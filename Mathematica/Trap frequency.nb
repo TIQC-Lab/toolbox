@@ -1,0 +1,227 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 11.3' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[      7678,        219]
+NotebookOptionsPosition[      6533,        188]
+NotebookOutlinePosition[      6888,        204]
+CellTagsIndexPosition[      6845,        201]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell["Trap frequency determined by spacing", "Section",
+ CellChangeTimes->{{3.752405771141642*^9, 
+  3.752405778292224*^9}},ExpressionUUID->"2f9a8368-e253-400e-a5a1-\
+4b25b58d5bb0"],
+
+Cell[CellGroupData[{
+
+Cell["Ion distance relation", "Subsection",
+ CellChangeTimes->{{3.757525719754884*^9, 
+  3.7575257363161383`*^9}},ExpressionUUID->"e782b04f-7bdd-4f69-8f4b-\
+ccf15c71eb30"],
+
+Cell[CellGroupData[{
+
+Cell["\<\
+James, D. Appl Phys B (1998) 66: 181. https://doi.org/10.1007/s003400050373\
+\>", "Subsubsection",
+ CellChangeTimes->{
+  3.7575292284068003`*^9},ExpressionUUID->"718f73bb-6551-440a-9888-\
+7aaf3573452a"],
+
+Cell[TextData[{
+ "The distance for a small number of ions in a trap could be estimated by\n",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{"l", " ", "=", " ", 
+    SuperscriptBox[
+     RowBox[{"(", 
+      FractionBox[
+       RowBox[{
+        SuperscriptBox["Z", "2"], 
+        SuperscriptBox["e", "2"]}], 
+       RowBox[{"4", 
+        SubscriptBox["\[Pi]\[Epsilon]", "0"], 
+        SuperscriptBox["M\[Nu]", "2"]}]], ")"}], 
+     RowBox[{"1", "/", "3"}]]}], TraditionalForm]],ExpressionUUID->
+  "a1d5805c-20d0-4de9-b6ec-3645425557c4"],
+ "\nwhere Z is the degree of ionization, e is the electron charge, ",
+ Cell[BoxData[
+  FormBox[
+   SubscriptBox["\[Epsilon]", "0"], TraditionalForm]],ExpressionUUID->
+  "04b709c1-fcc1-4273-99dc-1e7883988561"],
+ " is the vacuum permittivity, M is the ion mass and \[Nu] is the axial trap \
+frequency.\nConsidering the different number of trapped ions, the chain size \
+end-to-end is roughly\n",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    RowBox[{"l", "\[Cross]", "4.569"}], 
+    RowBox[{"(", 
+     RowBox[{
+      SuperscriptBox["N", "0.353"], "-", "1"}]}]}], TraditionalForm]],
+  ExpressionUUID->"6d3ce1df-5f7e-4259-9132-0c0de334ad24"],
+ ")\nfor the middle ions of the chain, the distance could also be \
+approximated by\n",
+ Cell[BoxData[
+  FormBox[
+   FractionBox[
+    RowBox[{"l", "\[Cross]", "2.018"}], 
+    SuperscriptBox["N", "0.559"]], TraditionalForm]],ExpressionUUID->
+  "5406721e-4cd6-4e72-92f0-58cc89054815"]
+}], "Text",
+ CellChangeTimes->{{3.757525739842271*^9, 
+  3.757526160894087*^9}},ExpressionUUID->"9eee03fc-e4b9-412e-a434-\
+8f144f689be4"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[TextData[StyleBox["Codes", "Section"]], "Subsubsection",
+ CellChangeTimes->{{3.7575261920519447`*^9, 
+  3.757526194450533*^9}},ExpressionUUID->"ad55f8b4-512e-402b-88d4-\
+c3edb9c9ba35"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"Z", "=", "1"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"e", "=", "1.60217662*^-19"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"\[Epsilon]", "=", "8.854187817*^-12"}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"u", "=", "1.6605402*^-27"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"distance", "[", 
+    RowBox[{"\[Nu]_", ",", 
+     RowBox[{"m_:", "171"}]}], "]"}], ":=", 
+   SuperscriptBox[
+    RowBox[{"(", 
+     FractionBox[
+      RowBox[{
+       SuperscriptBox["Z", "2"], 
+       SuperscriptBox["e", "2"]}], 
+      RowBox[{"16", 
+       SuperscriptBox["\[Pi]", "3"], " ", "\[Epsilon]", " ", "u", " ", "m", 
+       " ", 
+       SuperscriptBox["\[Nu]", "2"]}]], ")"}], 
+    RowBox[{"1", "/", "3"}]]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"chainDistance", "[", 
+    RowBox[{"\[Nu]_", ",", "n_", ",", "m_"}], "]"}], ":=", 
+   RowBox[{
+    RowBox[{"distance", "[", 
+     RowBox[{"\[Nu]", ",", "m"}], "]"}], "*", "4.569", "*", 
+    RowBox[{"(", 
+     RowBox[{
+      SuperscriptBox["n", "0.353"], "-", "1"}], ")"}]}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"middleDistance", "[", 
+    RowBox[{"\[Nu]_", ",", "n_", ",", "m_"}], "]"}], ":=", 
+   RowBox[{
+    RowBox[{"distance", "[", 
+     RowBox[{"\[Nu]", ",", "m"}], "]"}], "*", 
+    FractionBox["2.018", 
+     SuperscriptBox["n", "0.559"]]}]}], ";"}]}], "Input",
+ CellChangeTimes->{{3.7575261683188734`*^9, 3.75752618048656*^9}, {
+  3.7575262949305267`*^9, 3.757526334298994*^9}, {3.757526410485244*^9, 
+  3.757526497171628*^9}, {3.7575265389599075`*^9, 3.7575266794453845`*^9}, {
+  3.7575267165324306`*^9, 3.7575267808452225`*^9}, {3.7575281724329386`*^9, 
+  3.7575281745697994`*^9}, {3.7575282875362206`*^9, 3.7575283300735593`*^9}, {
+  3.7575284294741344`*^9, 3.757528429640688*^9}, {3.7575284673546495`*^9, 
+  3.7575285318071012`*^9}, {3.7575285758120623`*^9, 3.757528577789773*^9}, {
+  3.7575286779850388`*^9, 3.757528681352167*^9}, {3.757528815243572*^9, 
+  3.757528817640278*^9}, {3.757528987165047*^9, 3.757528987992834*^9}, {
+  3.757529558182318*^9, 3.7575295658413982`*^9}},
+ CellLabel->"In[1]:=",ExpressionUUID->"5308f2d7-9e33-4de4-a3ca-0e1dfa6c03f2"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"Solve", "[", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"chainDistance", "[", 
+     RowBox[{"x", ",", "12", ",", "174"}], "]"}], "\[Equal]", "36.5*^-6"}], 
+   ",", "x"}], "]"}]], "Input",
+ CellChangeTimes->{{3.7575267945256543`*^9, 3.757526803751227*^9}, {
+  3.7575294554241486`*^9, 3.7575294769199767`*^9}, {3.757529570022626*^9, 
+  3.757529633499487*^9}, {3.757530171459295*^9, 3.757530210264447*^9}, {
+  3.7575310922283053`*^9, 3.757531092433756*^9}, {3.7575317620216694`*^9, 
+  3.75753176604912*^9}, {3.7575330120503583`*^9, 3.7575330166347895`*^9}},
+ CellLabel->"In[17]:=",ExpressionUUID->"1de8dc84-4477-493a-996c-adcdae5dcbe8"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{"x", "\[Rule]", 
+     RowBox[{"-", "331388.4941589166`"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"x", "\[Rule]", "331388.4941589166`"}], "}"}]}], "}"}]], "Output",
+ CellChangeTimes->{
+  3.757529477993201*^9, {3.757529573292904*^9, 3.7575296340988817`*^9}, {
+   3.757530176848489*^9, 3.7575302105436544`*^9}, 3.7575310927918634`*^9, 
+   3.7575317668409595`*^9, 3.7575330194809012`*^9},
+ CellLabel->"Out[17]=",ExpressionUUID->"f314714e-1e8a-4553-b9e1-5ca8e43943b4"]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]]
+},
+WindowSize->{958, 988},
+WindowMargins->{{Automatic, -7}, {Automatic, 0}},
+FrontEndVersion->"11.3 for Microsoft Windows (64-bit) (2018\:5e743\:670828\
+\:65e5)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[580, 22, 181, 3, 67, "Section",ExpressionUUID->"2f9a8368-e253-400e-a5a1-4b25b58d5bb0"],
+Cell[CellGroupData[{
+Cell[786, 29, 171, 3, 53, "Subsection",ExpressionUUID->"e782b04f-7bdd-4f69-8f4b-ccf15c71eb30"],
+Cell[CellGroupData[{
+Cell[982, 36, 212, 5, 44, "Subsubsection",ExpressionUUID->"718f73bb-6551-440a-9888-7aaf3573452a"],
+Cell[1197, 43, 1582, 43, 207, "Text",ExpressionUUID->"9eee03fc-e4b9-412e-a434-8f144f689be4"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[2816, 91, 189, 3, 56, "Subsubsection",ExpressionUUID->"ad55f8b4-512e-402b-88d4-c3edb9c9ba35"],
+Cell[3008, 96, 2257, 56, 206, "Input",ExpressionUUID->"5308f2d7-9e33-4de4-a3ca-0e1dfa6c03f2"],
+Cell[CellGroupData[{
+Cell[5290, 156, 650, 12, 45, "Input",ExpressionUUID->"1de8dc84-4477-493a-996c-adcdae5dcbe8"],
+Cell[5943, 170, 538, 12, 32, "Output",ExpressionUUID->"f314714e-1e8a-4553-b9e1-5ca8e43943b4"]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]]
+}
+]
+*)
+
