@@ -1,0 +1,652 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 9.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       157,          7]
+NotebookDataLength[     25137,        644]
+NotebookOptionsPosition[     23451,        581]
+NotebookOutlinePosition[     23808,        597]
+CellTagsIndexPosition[     23765,        594]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell["Declaration", "Section",
+ CellChangeTimes->{{3.596256784940527*^9, 3.5962567950771065`*^9}, {
+  3.5962568419007845`*^9, 3.596256845363983*^9}}],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"BeginPackage", "[", "\"\<IonTrap`\>\"", "]"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{"ClearAll", "[", "DDSCards", "]"}], "\[IndentingNewLine]", 
+ RowBox[{"ClearAll", "[", "DDSHandle", "]"}], "\[IndentingNewLine]", 
+ RowBox[{"ClearAll", "[", "DDSOpen", "]"}], "\[IndentingNewLine]", 
+ RowBox[{"ClearAll", "[", "DDSReset", "]"}], "\[IndentingNewLine]", 
+ RowBox[{"ClearAll", "[", "DDSCommand", "]"}], "\[IndentingNewLine]", 
+ RowBox[{"ClearAll", "[", "DDSWrite", "]"}], "\[IndentingNewLine]", 
+ RowBox[{"ClearAll", "[", "DDSRead", "]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"ClearAll", "[", "DDSFrequency", "]"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{"DDSHandles", "=", 
+  RowBox[{"{", "}"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"DDSPortConfig", "=", 
+   RowBox[{"{", 
+    RowBox[{"16^^7F", ",", "16^^FF", ",", "16^^00", ",", "16^^FF"}], "}"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"DDSClock", "=", "1000000000"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"DDSFrequencyRegister", "=", "16^^1AB"}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"DDSFrequencyClockRatio", "=", 
+    RowBox[{"N", "[", 
+     RowBox[{"2", "^", "48"}], 
+     RowBox[{"(*", "281474976710656", "*)"}], "]"}]}], ";"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"If", "[", 
+    RowBox[{
+     RowBox[{"!", 
+      RowBox[{"ValueQ", "@", "AdiClockLib"}]}], ",", "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{"AdiClockLib", "=", 
+       RowBox[{"FFI`Lib", "@", 
+        RowBox[{"FileNameJoin", "@", 
+         RowBox[{"{", 
+          RowBox[{
+           RowBox[{"NotebookDirectory", "[", "]"}], ",", 
+           "\"\<adiclockeval.dll\>\""}], "}"}]}]}]}], ";", 
+      "\[IndentingNewLine]", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{
+        "cFindHardware", ",", "cGetHardwareHandles", ",", "cIsConnected", ",",
+          "cReset", ",", "cSetPortConfig", ",", "cGetPortValue", ",", 
+         "cSetPortValue", ",", "cGetSpiInstruction", ",", "cSpiWrite", ",", 
+         "cSpiRead"}], "}"}], "=", 
+       RowBox[{"FFI`Def", "[", 
+        RowBox[{
+        "AdiClockLib", ",", 
+         "\"\<\nint FindHardware(int*,int*,int);\nvoid \
+GetHardwareHandles(int*);\nint IsConnected(int);\nvoid Reset(int);\nvoid \
+SetPortConfig(int,int,char);\nvoid GetPortValue(int,int,char*);\nvoid \
+SetPortValue(int,int,char);\nvoid GetSpiInstruction(int,int,int,char*,int);\n\
+void SpiWrite(int,char*,int);\nvoid SpiRead(int,char*,int,char*,int,int);\n\>\
+\""}], "]"}]}], ";", "\[IndentingNewLine]", 
+      RowBox[{"dUpdate", "=", 
+       RowBox[{"FFI`New", "@", 
+        RowBox[{"Data", "@", 
+         RowBox[{"{", 
+          RowBox[{"255", ",", "5", ",", "0"}], "}"}]}]}]}], ";"}]}], 
+    "\[IndentingNewLine]", "]"}], ";"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{"Begin", "[", "\"\<`Private`\>\"", "]"}]}], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{{3.6048356151448097`*^9, 3.6048356384641433`*^9}, {
+   3.621054250101595*^9, 3.6210542507986355`*^9}, {3.6231811133130207`*^9, 
+   3.623181138890483*^9}, 3.6231817736987925`*^9, 3.6234905256795564`*^9, {
+   3.624005935498312*^9, 3.624005939505541*^9}, {3.624076323356589*^9, 
+   3.6240763319320793`*^9}, {3.6240763740524883`*^9, 3.624076408107436*^9}, {
+   3.62407644208438*^9, 3.624076470748019*^9}, {3.624076501611785*^9, 
+   3.6240765042519355`*^9}, {3.62407654786843*^9, 3.6240766990520773`*^9}, {
+   3.6240767486679153`*^9, 3.6240768815485153`*^9}, {3.6240769337244997`*^9, 
+   3.6240769459642*^9}, {3.6240770003323097`*^9, 3.6240770035724955`*^9}, {
+   3.6240770681811905`*^9, 3.6240771654537544`*^9}, {3.6240772943091245`*^9, 
+   3.6240773960209417`*^9}, {3.624077884924906*^9, 3.624077925308215*^9}, {
+   3.624078094660902*^9, 3.624078096660016*^9}, 3.6240784571386347`*^9, {
+   3.624079840581763*^9, 3.6240798576127367`*^9}, {3.655894336050268*^9, 
+   3.65589463636382*^9}, {3.655894688574133*^9, 3.6558949077830963`*^9}, {
+   3.655895524664115*^9, 3.655895556344389*^9}, {3.655895951491064*^9, 
+   3.655895952892144*^9}, {3.655896058061783*^9, 3.655896071252833*^9}, {
+   3.655896120949483*^9, 3.655896125551948*^9}, {3.655896365601325*^9, 
+   3.655896367183299*^9}, {3.655896411245123*^9, 3.655896449870955*^9}, {
+   3.655896822043744*^9, 3.655896829219365*^9}, {3.6558983796033993`*^9, 
+   3.655898398096805*^9}, {3.6558991076420107`*^9, 3.655899121322817*^9}, {
+   3.655899295475719*^9, 3.65589929823908*^9}, {3.655899345877363*^9, 
+   3.6558994109816923`*^9}, {3.655899649369845*^9, 3.6558996544935617`*^9}, 
+   3.655899759431797*^9, {3.6559410973997498`*^9, 3.6559412052453203`*^9}, {
+   3.655941248168201*^9, 3.655941304193815*^9}, {3.655941610247596*^9, 
+   3.6559417030229025`*^9}, {3.6559435297273836`*^9, 3.655943569455656*^9}, {
+   3.6559436364424877`*^9, 3.6559436572086754`*^9}, {3.6559438931241693`*^9, 
+   3.655943906985962*^9}, {3.6559442100822983`*^9, 3.655944280775341*^9}, {
+   3.6559443742366867`*^9, 3.655944374849722*^9}, {3.6559444431546288`*^9, 
+   3.6559445158327856`*^9}, {3.655944676122954*^9, 3.655944685639498*^9}, {
+   3.6559459072693715`*^9, 3.6559459253994083`*^9}, {3.6559519156340303`*^9, 
+   3.655951925557598*^9}, {3.655985962076881*^9, 3.655985998545476*^9}, {
+   3.7047057088491163`*^9, 3.7047057133561134`*^9}, {3.704705776074489*^9, 
+   3.7047057867894974`*^9}, {3.7047089478843937`*^9, 3.7047089486203938`*^9}}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Definition", "Section",
+ CellChangeTimes->{{3.6046429445346966`*^9, 3.604642957117416*^9}}],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"DDSCards", "[", "]"}], ":=", 
+    RowBox[{"Module", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{"vid", ",", "pid", ",", "num", ",", "handles"}], "}"}], ",", 
+      "\[IndentingNewLine]", 
+      RowBox[{
+       RowBox[{"vid", "=", 
+        RowBox[{"FFI`New", "@", 
+         RowBox[{"{", "16^^0456", "}"}]}]}], ";", "\[IndentingNewLine]", 
+       RowBox[{"pid", "=", 
+        RowBox[{"FFI`New", "@", 
+         RowBox[{"{", "16^^EE25", "}"}]}]}], ";", "\[IndentingNewLine]", 
+       RowBox[{"num", "=", 
+        RowBox[{"cFindHardware", "[", 
+         RowBox[{"vid", ",", "pid", ",", "1"}], "]"}]}], ";", 
+       "\[IndentingNewLine]", 
+       RowBox[{"handles", "=", 
+        RowBox[{"FFI`New", "@", 
+         RowBox[{"ConstantArray", "[", 
+          RowBox[{"0", ",", "num"}], "]"}]}]}], ";", "\[IndentingNewLine]", 
+       RowBox[{"cGetHardwareHandles", "[", "handles", "]"}], ";", 
+       "\[IndentingNewLine]", 
+       RowBox[{"DDSHandles", "=", 
+        RowBox[{"FFI`Read", "[", 
+         RowBox[{"handles", ",", "\"\<int\>\"", ",", "num"}], "]"}]}], ";", 
+       "\[IndentingNewLine]", 
+       RowBox[{"FFI`ReleaseData", "/@", 
+        RowBox[{"{", 
+         RowBox[{"vid", ",", "pid", ",", "handles"}], "}"}]}], ";", 
+       "\[IndentingNewLine]", "DDSHandles"}]}], "\[IndentingNewLine]", 
+     "]"}]}], ";"}], "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"DDSHandle", "[", "id_Integer", "]"}], ":=", 
+    RowBox[{
+    "DDSHandles", "\[LeftDoubleBracket]", "id", "\[RightDoubleBracket]"}]}], 
+   ";"}], "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"DDSOpen", "[", "id_Integer", "]"}], ":=", 
+    RowBox[{"If", "[", 
+     RowBox[{
+      RowBox[{
+       RowBox[{"cIsConnected", "[", 
+        RowBox[{"DDSHandle", "@", "id"}], "]"}], ">", "0"}], ",", 
+      RowBox[{
+       RowBox[{
+        RowBox[{
+         RowBox[{"cSetPortConfig", "[", 
+          RowBox[{
+           RowBox[{"DDSHandle", "@", "id"}], ",", 
+           RowBox[{"#", "-", "1"}], ",", 
+           RowBox[{"DDSPortConfig", "@", "#"}]}], "]"}], "&"}], "/@", 
+        RowBox[{"Range", "@", 
+         RowBox[{"Length", "@", "DDSPortConfig"}]}]}], ";"}], ",", 
+      RowBox[{"Throw", "[", 
+       RowBox[{"\"\<DDS \>\"", "<>", 
+        RowBox[{"ToString", "@", "id"}], "<>", "\"\< not connected!\>\""}], 
+       "]"}]}], "]"}]}], ";"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"DDSReset", "[", "id_Integer", "]"}], ":=", 
+    RowBox[{"(", 
+     RowBox[{"(*", 
+      RowBox[{
+       RowBox[{"cReset", "[", 
+        RowBox[{"DDSHandle", "@", "id"}], "]"}], ";"}], "*)"}], 
+     "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{"cSetPortValue", "[", 
+       RowBox[{
+        RowBox[{"DDSHandle", "@", "id"}], ",", "0", ",", "7"}], "]"}], ";", 
+      RowBox[{"Pause", "[", "0.01", "]"}], ";", 
+      RowBox[{"cSetPortValue", "[", 
+       RowBox[{
+        RowBox[{"DDSHandle", "@", "id"}], ",", "0", ",", "3"}], "]"}], ";", 
+      RowBox[{"Pause", "[", "0.3", "]"}], ";"}], ")"}]}], ";"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"DDSCommand", "[", 
+     RowBox[{"rw_Integer", ",", "reg_Integer", ",", "length_Integer"}], "]"}],
+     ":=", 
+    RowBox[{"BitOr", "[", 
+     RowBox[{
+      RowBox[{"BitShiftLeft", "[", 
+       RowBox[{"rw", ",", "15"}], "]"}], ",", 
+      RowBox[{"BitAnd", "[", 
+       RowBox[{"reg", ",", "16^^7FF"}], "]"}], ",", 
+      RowBox[{"BitShiftLeft", "[", 
+       RowBox[{
+        RowBox[{"If", "[", 
+         RowBox[{
+          RowBox[{"length", ">", "3"}], ",", "3", ",", 
+          RowBox[{"length", "-", "1"}]}], "]"}], ",", "13"}], "]"}]}], "]"}]}]
+    , 
+   RowBox[{"(*", 
+    RowBox[{"cGetSpiInstruction", "[", 
+     RowBox[{"rw", ",", "reg", ",", "length", ",", "cmd", ",", "2"}], "]"}], 
+    "*)"}], ";"}], "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"DDSWrite", "[", 
+    RowBox[{"id_Integer", ",", "reg_Integer", ",", "data_List"}], "]"}], ":=", 
+   RowBox[{"Module", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"cmd", ",", "wdata"}], "}"}], ",", "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{"cmd", "=", 
+       RowBox[{"DDSCommand", "[", 
+        RowBox[{"0", ",", "reg", ",", 
+         RowBox[{"Length", "@", "data"}]}], "]"}]}], ";", 
+      "\[IndentingNewLine]", 
+      RowBox[{"wdata", "=", 
+       RowBox[{"FFI`New", "@", 
+        RowBox[{"Data", "@", 
+         RowBox[{"Join", "[", 
+          RowBox[{"data", ",", 
+           RowBox[{"{", 
+            RowBox[{
+             RowBox[{"BitAnd", "[", 
+              RowBox[{"cmd", ",", "16^^FF"}], "]"}], ",", 
+             RowBox[{"BitShiftRight", "[", 
+              RowBox[{"cmd", ",", "8"}], "]"}]}], "}"}]}], "]"}]}]}]}], ";", 
+      "\[IndentingNewLine]", 
+      RowBox[{"cSpiWrite", "[", 
+       RowBox[{
+        RowBox[{"DDSHandle", "@", "id"}], ",", "wdata", ",", 
+        RowBox[{
+         RowBox[{"Length", "@", "data"}], "+", "2"}]}], "]"}], ";", 
+      "\[IndentingNewLine]", 
+      RowBox[{"FFI`ReleaseData", "@", "wdata"}], ";", "\[IndentingNewLine]", 
+      RowBox[{"If", "[", 
+       RowBox[{
+        RowBox[{"reg", "\[NotEqual]", "5"}], ",", 
+        RowBox[{"cSpiWrite", "[", 
+         RowBox[{
+          RowBox[{"DDSHandle", "@", "id"}], ",", "dUpdate", ",", "3"}], 
+         "]"}]}], 
+       RowBox[{"(*", 
+        RowBox[{"DDSWrite", "[", 
+         RowBox[{"id", ",", "5", ",", 
+          RowBox[{"{", "255", "}"}]}], "]"}], "*)"}], "]"}], ";"}]}], 
+    "\[IndentingNewLine]", "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"DDSWrite", "[", 
+     RowBox[{
+     "id_Integer", ",", "reg_Integer", ",", "data_Integer", ",", 
+      "len_Integer"}], "]"}], ":=", 
+    RowBox[{"DDSWrite", "[", 
+     RowBox[{"id", ",", "reg", ",", 
+      RowBox[{"Reverse", "@", 
+       RowBox[{"IntegerDigits", "[", 
+        RowBox[{"data", ",", "256", ",", "len"}], "]"}]}]}], "]"}]}], ";"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"DDSRead", "[", 
+     RowBox[{"id_Integer", ",", "reg_Integer", ",", "len_Integer"}], "]"}], ":=", 
+    RowBox[{"Module", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{"cmd", ",", "wdata", ",", "rdata", ",", "data"}], "}"}], ",", 
+      "\[IndentingNewLine]", 
+      RowBox[{
+       RowBox[{"cmd", "=", 
+        RowBox[{"DDSCommand", "[", 
+         RowBox[{"1", ",", "reg", ",", "len"}], "]"}]}], ";", 
+       "\[IndentingNewLine]", 
+       RowBox[{"wdata", "=", 
+        RowBox[{"FFI`New", "@", 
+         RowBox[{"Data", "@", 
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{"BitAnd", "[", 
+             RowBox[{"cmd", ",", "16^^FF"}], "]"}], ",", 
+            RowBox[{"BitShiftRight", "[", 
+             RowBox[{"cmd", ",", "8"}], "]"}]}], "}"}]}]}]}], ";", 
+       "\[IndentingNewLine]", 
+       RowBox[{"rdata", "=", 
+        RowBox[{"FFI`New", "[", 
+         RowBox[{"len", ",", "0"}], "]"}]}], ";", "\[IndentingNewLine]", 
+       RowBox[{"cSpiRead", "[", 
+        RowBox[{
+         RowBox[{"DDSHandle", "@", "id"}], ",", "wdata", ",", "2", ",", 
+         "rdata", ",", "len", ",", "0"}], "]"}], ";", "\[IndentingNewLine]", 
+       RowBox[{"data", "=", 
+        RowBox[{"FFI`Read", "[", 
+         RowBox[{"rdata", ",", "len"}], "]"}]}], ";", "\[IndentingNewLine]", 
+       RowBox[{"FFI`ReleaseData", "/@", 
+        RowBox[{"{", 
+         RowBox[{"wdata", ",", "rdata"}], "}"}]}], ";", "\[IndentingNewLine]",
+        "data"}]}], "\[IndentingNewLine]", "]"}]}], ";"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"DDSFrequency", "[", 
+    RowBox[{"id_Integer", ",", 
+     RowBox[{"freq", ":", 
+      RowBox[{"_", "?", "NumberQ"}], ":", "0"}]}], "]"}], ":=", 
+   RowBox[{"If", "[", 
+    RowBox[{
+     RowBox[{"freq", "\[Equal]", "0"}], ",", "\[IndentingNewLine]", 
+     RowBox[{"DDSClock", "*", 
+      RowBox[{
+       RowBox[{"FromDigits", "[", 
+        RowBox[{
+         RowBox[{"Reverse", "@", 
+          RowBox[{"DDSRead", "[", 
+           RowBox[{"id", ",", "DDSFrequencyRegister", ",", "6"}], "]"}]}], 
+         ",", "256"}], "]"}], "/", "DDSFrequencyClockRatio"}]}], ",", 
+     "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{"DDSWrite", "[", 
+       RowBox[{"id", ",", "DDSFrequencyRegister", ",", 
+        RowBox[{"Floor", "[", 
+         RowBox[{"DDSFrequencyClockRatio", "*", 
+          RowBox[{"(", 
+           RowBox[{"freq", "/", "DDSClock"}], ")"}]}], "]"}], ",", "6"}], 
+       "]"}], ";"}]}], "\[IndentingNewLine]", "]"}]}], ";"}]}], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{{3.623027171851948*^9, 3.6230272261950564`*^9}, {
+   3.6230272793310957`*^9, 3.623027304867556*^9}, {3.6230273513072124`*^9, 
+   3.6230273516502323`*^9}, {3.623027456458227*^9, 3.623027475505316*^9}, {
+   3.6230275473454237`*^9, 3.623027617496436*^9}, {3.6230277174241505`*^9, 
+   3.623027734672137*^9}, {3.6230277759915*^9, 3.6230277808957806`*^9}, {
+   3.6230278151597404`*^9, 3.623027844024391*^9}, {3.6230278740641084`*^9, 
+   3.6230279161665163`*^9}, {3.6231810746978116`*^9, 3.623181105561577*^9}, {
+   3.6231813013617764`*^9, 3.623181302953867*^9}, 3.6231813522266855`*^9, {
+   3.624077412651893*^9, 3.624077566331683*^9}, {3.6240776000676126`*^9, 
+   3.6240777381875124`*^9}, {3.6240777751796284`*^9, 3.624077821492277*^9}, {
+   3.624077929555458*^9, 3.6240779794593124`*^9}, {3.624078109347742*^9, 
+   3.6240781973547754`*^9}, {3.624078234954926*^9, 3.6240783469223304`*^9}, {
+   3.624078742800973*^9, 3.6240787444820695`*^9}, 3.6240788169842167`*^9, {
+   3.6240791574246883`*^9, 3.6240791651341295`*^9}, {3.6240797545968447`*^9, 
+   3.6240797584520655`*^9}, 3.624079874588708*^9, {3.6240804496836014`*^9, 
+   3.624080460242205*^9}, 3.6240805436109734`*^9, {3.624080688995289*^9, 
+   3.6240807330908113`*^9}, {3.6240869876455517`*^9, 3.624087002694412*^9}, {
+   3.655894922994608*^9, 3.6558949411659117`*^9}, {3.655894976862422*^9, 
+   3.655895029118043*^9}, {3.655895195088602*^9, 3.655895318350868*^9}, {
+   3.655895352709991*^9, 3.655895434175749*^9}, {3.655895468684026*^9, 
+   3.6558955036877327`*^9}, {3.6558960421118307`*^9, 3.655896156079032*^9}, {
+   3.655896210277149*^9, 3.6558962125565653`*^9}, {3.655896301109929*^9, 
+   3.655896400318226*^9}, {3.6558964652477407`*^9, 3.655896551048419*^9}, {
+   3.655896651197749*^9, 3.65589681488234*^9}, {3.6558968476005907`*^9, 
+   3.655896998059678*^9}, {3.655897029547744*^9, 3.65589713221978*^9}, {
+   3.655897316281158*^9, 3.655897392628646*^9}, {3.6558975869598837`*^9, 
+   3.6558977707699823`*^9}, {3.6558978211286087`*^9, 3.655897842686294*^9}, {
+   3.655897878368636*^9, 3.655897883760479*^9}, {3.655897975868682*^9, 
+   3.6558980486076736`*^9}, {3.6558981413192463`*^9, 
+   3.6558982482200127`*^9}, {3.655898312992185*^9, 3.655898313320963*^9}, {
+   3.65589849415224*^9, 3.655898520809074*^9}, {3.6558987414023867`*^9, 
+   3.655898741735024*^9}, {3.6558989350366507`*^9, 3.655898945630595*^9}, {
+   3.655899037542308*^9, 3.655899096882944*^9}, {3.6558991325807047`*^9, 
+   3.655899163397468*^9}, {3.655899240440187*^9, 3.655899340587996*^9}, {
+   3.655899418930182*^9, 3.655899458366106*^9}, {3.6558995175807962`*^9, 
+   3.655899554593638*^9}, {3.655899599151803*^9, 3.6558996069274273`*^9}, {
+   3.655899874251567*^9, 3.655899874590826*^9}, {3.655899982254281*^9, 
+   3.655900004039535*^9}, {3.655940863963881*^9, 3.6559408780967407`*^9}, 
+   3.6559409253440104`*^9, {3.655940957561071*^9, 3.6559409824815273`*^9}, {
+   3.655941021665077*^9, 3.655941063142971*^9}, {3.6559417294214125`*^9, 
+   3.6559417612312317`*^9}, {3.655941816224377*^9, 3.655941828303068*^9}, {
+   3.6559426329260893`*^9, 3.6559426404605207`*^9}, {3.655943170352829*^9, 
+   3.6559432019066334`*^9}, {3.6559432634671545`*^9, 3.655943268302431*^9}, {
+   3.6559433076966844`*^9, 3.6559433122869473`*^9}, {3.6559433511621704`*^9, 
+   3.655943516356619*^9}, {3.6559435856865845`*^9, 3.65594359207495*^9}, {
+   3.6559450311192584`*^9, 3.65594509058666*^9}, {3.655945268466834*^9, 
+   3.6559452818596*^9}, {3.655945686586749*^9, 3.655945723022833*^9}, {
+   3.655951948334901*^9, 3.655951975978482*^9}, {3.6559520271544085`*^9, 
+   3.655952062996459*^9}, {3.704708401917589*^9, 3.7047084172045946`*^9}, {
+   3.7047086123920784`*^9, 3.7047086151421175`*^9}, {3.704708845227912*^9, 
+   3.7047088661272464`*^9}}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["End", "Section",
+ CellChangeTimes->{{3.6046429928574605`*^9, 3.604642995613618*^9}}],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"End", "[", "]"}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"EndPackage", "[", "]"}], ";"}]}], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{{3.6046437797924705`*^9, 3.6046437831126604`*^9}, {
+  3.604834055114581*^9, 3.604834055482602*^9}, {3.6559436225626936`*^9, 
+  3.655943629506091*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"Quit", "[", "]"}], ";"}]], "Input",
+ CellChangeTimes->{{3.7047057388874483`*^9, 3.704705740688418*^9}}],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"FFI`PtrSize", "=", "4"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"Get", "@", 
+   RowBox[{"FileNameJoin", "@", 
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"NotebookDirectory", "[", "]"}], ",", 
+      "\"\<..\\\\Mathematica\\\\FFI\\\\32\\\\FFI.m\>\""}], "}"}]}]}], 
+  ";"}]}], "Input",
+ CellChangeTimes->{{3.7047055830885983`*^9, 3.7047055859376*^9}, {
+  3.7047057439074183`*^9, 3.704705744176417*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"NotebookEvaluate", "[", 
+   RowBox[{
+    RowBox[{"EvaluationNotebook", "[", "]"}], ",", 
+    RowBox[{"EvaluationElements", "\[Rule]", "\"\<InitializationCell\>\""}]}],
+    "]"}], ";"}]], "Input"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"DDSCards", "[", "]"}]], "Input",
+ CellChangeTimes->{{3.7047059302025995`*^9, 3.704705948368599*^9}}],
+
+Cell[BoxData[
+ RowBox[{"{", "0", "}"}]], "Output",
+ CellChangeTimes->{
+  3.7047058014610996`*^9, {3.7047058781732435`*^9, 3.704705898742216*^9}, {
+   3.7047059314475985`*^9, 3.704705949027625*^9}, 3.7047059837580214`*^9, 
+   3.7047060433127255`*^9, {3.704707747068347*^9, 3.7047077580367374`*^9}, 
+   3.704708881931923*^9, 3.7047089711848574`*^9}]
+}, Open  ]],
+
+Cell[BoxData[
+ RowBox[{"DDSOpen", "[", "1", "]"}]], "Input",
+ CellChangeTimes->{3.7047059504036427`*^9}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"DDSRead", "[", 
+  RowBox[{"1", ",", "3", ",", "2"}], "]"}]], "Input"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{"130", ",", "25"}], "}"}]], "Output",
+ CellChangeTimes->{
+  3.7047059519466133`*^9, 3.7047059860569973`*^9, 3.7047060453596888`*^9, 
+   3.7047077799584737`*^9, 3.704708008767521*^9, {3.704708119376166*^9, 
+   3.704708126008166*^9}, 3.7047084212395706`*^9, 3.704708885500924*^9, 
+   3.7047089746298585`*^9}]
+}, Open  ]],
+
+Cell[BoxData[
+ RowBox[{"DDSReset", "[", "1", "]"}]], "Input"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"DDSRead", "[", 
+  RowBox[{"1", ",", "16^^1AB", ",", "6"}], "]"}]], "Input"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{"0", ",", "0", ",", "0", ",", "0", ",", "208", ",", "39"}], 
+  "}"}]], "Output",
+ CellChangeTimes->{
+  3.704705805347094*^9, {3.7047058833319626`*^9, 3.7047059013122153`*^9}, 
+   3.704706047808687*^9, 3.7047077839784765`*^9, {3.7047081109191656`*^9, 
+   3.7047081171852016`*^9}, 3.704708889320925*^9, {3.7047089767998924`*^9, 
+   3.7047089921767664`*^9}}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"DDSFrequency", "[", "1", "]"}]], "Input"],
+
+Cell[BoxData["1.55517578125`*^8"], "Output",
+ CellChangeTimes->{3.704705806570093*^9, 3.7047059029132156`*^9, 
+  3.704706049063689*^9, 3.7047077873954754`*^9, 3.704708890941928*^9, 
+  3.7047089934827642`*^9}]
+}, Open  ]],
+
+Cell[BoxData[
+ RowBox[{"DDSWrite", "[", 
+  RowBox[{"1", ",", "16^^1AB", ",", 
+   RowBox[{"{", 
+    RowBox[{"33", ",", "33", ",", "33", ",", "33", ",", "33", ",", "33"}], 
+    "}"}]}], "]"}]], "Input"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"DDSFrequency", "[", "1", "]"}]], "Input"],
+
+Cell[BoxData["5.7806396484375`*^8"], "Output",
+ CellChangeTimes->{3.7047059047772493`*^9, 3.7047060511436853`*^9, 
+  3.7047088946369247`*^9, 3.704709009625085*^9}]
+}, Open  ]],
+
+Cell[BoxData[
+ RowBox[{"DDSFrequency", "[", 
+  RowBox[{"1", ",", "6000000"}], "]"}]], "Input"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"DDSFrequency", "[", "1", "]"}]], "Input"],
+
+Cell[BoxData["5.999999999996674`*^6"], "Output",
+ CellChangeTimes->{3.704705906830251*^9, 3.7047060532986856`*^9, 
+  3.7047077979811277`*^9, 3.704708896750924*^9, 3.704709025347057*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"DDSRead", "[", 
+  RowBox[{"1", ",", "16^^1AB", ",", "6"}], "]"}]], "Input"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{"167", ",", "198", ",", "75", ",", "55", ",", "137", ",", "1"}], 
+  "}"}]], "Output",
+ CellChangeTimes->{3.704705907702221*^9, 3.704706054213691*^9, 
+  3.7047089022059245`*^9, 3.704709027080057*^9}]
+}, Open  ]]
+}, Open  ]]
+},
+WindowSize->{839, 710},
+WindowMargins->{{Automatic, -19}, {Automatic, 86}},
+FrontEndVersion->"11.0 for Microsoft Windows (64-bit) (2016\:5e747\:670828\
+\:65e5)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[579, 22, 149, 2, 70, "Section"],
+Cell[731, 26, 5505, 105, 712, "Input",
+ InitializationCell->True]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[6273, 136, 97, 1, 70, "Section"],
+Cell[6373, 139, 12536, 285, 997, "Input",
+ InitializationCell->True]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[18946, 429, 90, 1, 70, "Section"],
+Cell[19039, 432, 328, 8, 66, "Input",
+ InitializationCell->True],
+Cell[19370, 442, 138, 3, 30, "Input"],
+Cell[19511, 447, 451, 12, 50, "Input"],
+Cell[19965, 461, 230, 6, 30, "Input"],
+Cell[CellGroupData[{
+Cell[20220, 471, 124, 2, 30, "Input"],
+Cell[20347, 475, 347, 6, 30, "Output"]
+}, Open  ]],
+Cell[20709, 484, 104, 2, 30, "Input"],
+Cell[CellGroupData[{
+Cell[20838, 490, 93, 2, 30, "Input"],
+Cell[20934, 494, 345, 7, 30, "Output"]
+}, Open  ]],
+Cell[21294, 504, 61, 1, 30, "Input"],
+Cell[CellGroupData[{
+Cell[21380, 509, 99, 2, 30, "Input"],
+Cell[21482, 513, 394, 8, 30, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[21913, 526, 65, 1, 30, "Input"],
+Cell[21981, 529, 208, 3, 30, "Output"]
+}, Open  ]],
+Cell[22204, 535, 200, 5, 30, "Input"],
+Cell[CellGroupData[{
+Cell[22429, 544, 65, 1, 30, "Input"],
+Cell[22497, 547, 163, 2, 30, "Output"]
+}, Open  ]],
+Cell[22675, 552, 94, 2, 30, "Input"],
+Cell[CellGroupData[{
+Cell[22794, 558, 65, 1, 30, "Input"],
+Cell[22862, 561, 185, 2, 30, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[23084, 568, 99, 2, 30, "Input"],
+Cell[23186, 572, 237, 5, 30, "Output"]
+}, Open  ]]
+}, Open  ]]
+}
+]
+*)
+

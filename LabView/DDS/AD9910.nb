@@ -1,0 +1,1117 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 9.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       157,          7]
+NotebookDataLength[     46455,       1109]
+NotebookOptionsPosition[     44894,       1050]
+NotebookOutlinePosition[     45281,       1067]
+CellTagsIndexPosition[     45238,       1064]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+Cell[BoxData[{
+ RowBox[{"Needs", "[", "\"\<NETLink`\>\"", "]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"UninstallNET", "[", "]"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"InstallNET", "[", 
+   RowBox[{"\"\<Force32Bit\>\"", "\[Rule]", "True"}], "]"}], ";"}]}], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{
+  3.6988981076545215`*^9, 3.698898142935976*^9, {3.698898660001813*^9, 
+   3.69889866111312*^9}, {3.698898699120157*^9, 3.698898705073081*^9}, 
+   3.6988992456665854`*^9, 3.6988992779558053`*^9, {3.6988994217530437`*^9, 
+   3.698899423220641*^9}, 3.698915558543279*^9, 3.6989156528956757`*^9, 
+   3.6989159022059355`*^9, {3.6989171614379597`*^9, 3.69891716283704*^9}, {
+   3.698917218653232*^9, 3.6989172426616054`*^9}, {3.6989173381720686`*^9, 
+   3.698917462715192*^9}, {3.69896906703179*^9, 3.698969067662826*^9}, {
+   3.698969097839552*^9, 3.6989692130461416`*^9}, {3.698969258894764*^9, 
+   3.6989694589172044`*^9}, {3.698969507036957*^9, 3.6989695086450486`*^9}, 
+   3.6989719129155655`*^9, {3.698979755501135*^9, 3.6989797642036333`*^9}, 
+   3.6989797960754557`*^9, {3.699053145714968*^9, 3.6990531489136057`*^9}, 
+   3.6990533799626474`*^9, 3.699053416183709*^9, {3.699149964685567*^9, 
+   3.699150003384479*^9}, {3.6992291576466846`*^9, 3.699229175375869*^9}, {
+   3.6992292101761885`*^9, 3.6992292331489315`*^9}, 3.699233448709385*^9, {
+   3.6997763123024673`*^9, 3.69977631439629*^9}, {3.703926999049418*^9, 
+   3.703926999353034*^9}, {3.7468476701979256`*^9, 3.746847696630541*^9}, {
+   3.7468513305842724`*^9, 3.746851343411172*^9}},
+ ExpressionUUID -> "54b38993-d11f-474b-9775-59b65d6c1970"],
+
+Cell[CellGroupData[{
+
+Cell["Declaration", "Section",
+ CellChangeTimes->{{3.685069820477257*^9, 
+  3.685069829906796*^9}},ExpressionUUID->"83f3e9ef-983f-411c-8679-\
+943947620efd"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"ClearAll", "[", "DownloadFirmware", "]"}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"ClearAll", "[", "DDSCards", "]"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"ClearAll", "[", "DDSHandle", "]"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"ClearAll", "[", "DDSGetBoardID", "]"}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"ClearAll", "[", "IsConnected", "]"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"ClearAll", "[", "DDSGetPortValue", "]"}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"ClearAll", "[", "DDSSetPortValue", "]"}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"ClearAll", "[", "DDSSetPortConfig", "]"}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"ClearAll", "[", "FormatWData", "]"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"ClearAll", "[", "FormatRData", "]"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"ClearAll", "[", "GetRegLen", "]"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"ClearAll", "[", "GetEvbdInfo", "]"}], ";"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"ClearAll", "[", "DDSGetRegValue", "]"}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"ClearAll", "[", "DDSSetRegValue", "]"}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"ClearAll", "[", "MasterReset", "]"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"ClearAll", "[", "TriggerIOUpdate", "]"}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"ClearAll", "[", "TriggerIOReset", "]"}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"ClearAll", "[", "SetCurrentProfile", "]"}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"ClearAll", "[", "DDSInit", "]"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"ClearAll", "[", "ReadProfile", "]"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"ClearAll", "[", "WriteProfile", "]"}], ";"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"DDSHandles", "=", 
+   RowBox[{"{", "}"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"RegLength", "=", 
+   RowBox[{"{", 
+    RowBox[{
+    "4", ",", "4", ",", "4", ",", "4", ",", "4", ",", "6", ",", "6", ",", "4",
+      ",", "2", ",", "4", ",", "4", ",", "8", ",", "8", ",", "4", ",", "8", 
+     ",", "8", ",", "8", ",", "8", ",", "8", ",", "8", ",", "8", ",", "8", 
+     ",", "4"}], "}"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"SYSCLK", "=", "1000"}], ";"}]}], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{
+  3.698968930039954*^9, 3.6989689980558443`*^9, {3.6989779660157824`*^9, 
+   3.698977972392147*^9}, {3.698979986298336*^9, 3.6989799966669292`*^9}, {
+   3.698980774260405*^9, 3.6989807796287117`*^9}, 3.6989842859722633`*^9, {
+   3.6989844266023073`*^9, 3.6989844309305544`*^9}, {3.6989863471337214`*^9, 
+   3.69898635217253*^9}, 3.6989863930790033`*^9, {3.698988749810074*^9, 
+   3.6989887529808793`*^9}, {3.699000175986463*^9, 3.6990001834818916`*^9}, {
+   3.699004720391024*^9, 3.699004727005436*^9}, {3.6990061243589964`*^9, 
+   3.6990061353890123`*^9}, {3.699054407780907*^9, 3.6990544268215203`*^9}, 
+   3.699054484415348*^9, {3.6990545980467625`*^9, 3.6990546142688007`*^9}, {
+   3.699055575723787*^9, 3.699055581365656*^9}, {3.6990563911780553`*^9, 
+   3.6990563922886434`*^9}, {3.6990570351145926`*^9, 3.699057068243294*^9}, {
+   3.699057634009818*^9, 3.6990576371151085`*^9}, 3.6990600808880634`*^9, {
+   3.6990608358054233`*^9, 3.6990608371964846`*^9}, {3.699071813504105*^9, 
+   3.699071819111246*^9}, {3.6990765469105473`*^9, 3.6990765488935785`*^9}, {
+   3.6990824498530407`*^9, 3.699082456078228*^9}, 3.699151430536031*^9, {
+   3.699151460775196*^9, 3.699151466350949*^9}, {3.6991514966972766`*^9, 
+   3.699151502905822*^9}, 3.6991535265535145`*^9, {3.6991536107784867`*^9, 
+   3.6991536117177744`*^9}, {3.6991556951213694`*^9, 3.699155704901791*^9}, {
+   3.6991562472405453`*^9, 3.699156251745433*^9}, {3.6991571047952666`*^9, 
+   3.6991571210297365`*^9}, {3.6991572061729774`*^9, 
+   3.6991572224005585`*^9}, {3.699157356142927*^9, 3.699157373298239*^9}, {
+   3.6991577598936915`*^9, 3.6991577853771214`*^9}, {3.6991731259741216`*^9, 
+   3.699173150861545*^9}, {3.6991734751880956`*^9, 3.6991734932991314`*^9}, {
+   3.6991739312641816`*^9, 3.6991739547035227`*^9}, {3.6991742019296627`*^9, 
+   3.699174212559271*^9}, {3.699174423733349*^9, 3.699174440220292*^9}, {
+   3.699175085264187*^9, 3.6991750926096067`*^9}, {3.699175457246463*^9, 
+   3.6991754613176956`*^9}, {3.699181534747076*^9, 3.6991815418504825`*^9}, 
+   3.6991822246295347`*^9, {3.6991822690050735`*^9, 3.6991822729813004`*^9}, {
+   3.6991824473482738`*^9, 3.6991824670924034`*^9}, {3.6991825319481125`*^9, 
+   3.699182555380453*^9}, {3.699183809051159*^9, 3.6991838173706346`*^9}, {
+   3.699183998137974*^9, 3.699184011249724*^9}, {3.699184366871064*^9, 
+   3.6991843732304277`*^9}, {3.699225290450018*^9, 3.699225292242466*^9}, {
+   3.699225352301339*^9, 3.699225373080242*^9}, {3.6992254093064365`*^9, 
+   3.6992254845207353`*^9}, {3.699225533242777*^9, 3.699225535449209*^9}, {
+   3.699225569989973*^9, 3.6992255711086164`*^9}, 3.699226195236168*^9, {
+   3.6992271332507935`*^9, 3.6992271391452394`*^9}, {3.699229124986478*^9, 
+   3.6992291310953465`*^9}, 3.699229316205491*^9, 3.6992300059180264`*^9, {
+   3.699230052437499*^9, 3.6992301268900027`*^9}, 3.6992305695318975`*^9, {
+   3.699230781654478*^9, 3.699230789067176*^9}, {3.699230837754303*^9, 
+   3.6992308391400213`*^9}, {3.6992335722674522`*^9, 
+   3.6992335910905285`*^9}, {3.6992422251111937`*^9, 
+   3.6992422292494307`*^9}, {3.699242365126202*^9, 3.699242370439506*^9}, {
+   3.6992425319407434`*^9, 3.699242541356282*^9}, {3.699244100922484*^9, 
+   3.699244104586694*^9}, {3.699244238185335*^9, 3.6992442705861883`*^9}, {
+   3.6992585971156187`*^9, 3.6992586059641247`*^9}, {3.699258638763001*^9, 
+   3.6992586496896257`*^9}, 3.69925914891218*^9, {3.699522624600625*^9, 
+   3.6995226264605656`*^9}, 3.6995226892014933`*^9, {3.6995661332735577`*^9, 
+   3.6995661424110336`*^9}, 3.699569666473996*^9, 3.699582642385561*^9, 
+   3.6995936481160526`*^9, 3.6995936796198545`*^9, {3.6995938833385067`*^9, 
+   3.699593888274789*^9}, 3.6997750052506313`*^9, 3.6997753138915777`*^9, 
+   3.7039266752220244`*^9, {3.704006556485574*^9, 3.7040065685862656`*^9}, 
+   3.704059423652403*^9, {3.704059497684637*^9, 3.7040594982916718`*^9}, {
+   3.7040756752501764`*^9, 3.70407567933641*^9}, 3.704418465441527*^9, {
+   3.7044185191736*^9, 3.704418535590539*^9}, {3.7044209941181593`*^9, 
+   3.704420997562356*^9}, {3.704427922895995*^9, 3.7044279281362944`*^9}, 
+   3.704428543268478*^9, {3.704495216018281*^9, 3.7044952320892005`*^9}, {
+   3.707621760121174*^9, 3.707621761935404*^9}, 3.7076219077401133`*^9, {
+   3.7076247113119774`*^9, 3.707624722255604*^9}, {3.707624861094545*^9, 
+   3.707624877533485*^9}, {3.707629028192889*^9, 3.7076290602637234`*^9}, {
+   3.7076296548927345`*^9, 3.7076296621721506`*^9}, {3.7076297996510143`*^9, 
+   3.7076298008350816`*^9}, {3.7076307213717337`*^9, 3.707630729388192*^9}},
+ ExpressionUUID -> "cf4d395a-c910-4efe-9296-bfd46514510c"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Protected", "Section",
+ CellChangeTimes->{{3.685070328477313*^9, 3.685070351217613*^9}, {
+  3.6851418507876015`*^9, 
+  3.6851418522991476`*^9}},ExpressionUUID->"b36cabca-4a98-461c-9843-\
+72e4b8b09ee8"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"AdiClockLib", "=", 
+   RowBox[{"FileNameJoin", "@", 
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"NotebookDirectory", "[", "]"}], ",", 
+      "\"\<adiclockeval.dll\>\""}], "}"}]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"HEXFile", "=", 
+   RowBox[{"FileNameJoin", "@", 
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"NotebookDirectory", "[", "]"}], ",", 
+      "\"\<AD9910FWNR.hex\>\""}], "}"}]}]}], ";"}]}], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{{3.7039273990206456`*^9, 3.703927404468937*^9}, 
+   3.704079755875575*^9, {3.704418553805581*^9, 3.7044185565967407`*^9}, {
+   3.704423670745253*^9, 3.704423678367689*^9}, 3.704430672481003*^9, {
+   3.707622161226009*^9, 3.707622181609767*^9}, {3.7076222622911634`*^9, 
+   3.707622289510641*^9}, {3.7076243969129953`*^9, 3.707624402392308*^9}, {
+   3.7076248888851347`*^9, 3.707624917444768*^9}, {3.7076264972661285`*^9, 
+   3.707626498889221*^9}, {3.707703093421178*^9, 3.7077031015806446`*^9}, {
+   3.746847729359296*^9, 3.7468477653917847`*^9}},
+ ExpressionUUID -> "0027e575-ce4c-411b-9a6b-24712b87791d"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+   RowBox[{"DownloadFirmware", "=", 
+    RowBox[{"DefineDLLFunction", "[", 
+     RowBox[{
+     "\"\<DownloadFirmware\>\"", ",", "AdiClockLib", ",", "\"\<int\>\"", ",", 
+      RowBox[{"{", 
+       RowBox[{"\"\<int\>\"", ",", "\"\<System.String\>\""}], "}"}]}], 
+     "]"}]}], ";"}], "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"FindHardware", "=", 
+    RowBox[{"DefineDLLFunction", "[", 
+     RowBox[{
+     "\"\<FindHardware\>\"", ",", "AdiClockLib", ",", "\"\<int\>\"", ",", 
+      RowBox[{"{", 
+       RowBox[{"\"\<int*\>\"", ",", "\"\<int*\>\"", ",", "\"\<int\>\""}], 
+       "}"}]}], "]"}]}], ";"}], "\n"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"GetHardwareHandles", "=", 
+    RowBox[{"DefineDLLFunction", "[", 
+     RowBox[{
+     "\"\<GetHardwareHandles\>\"", ",", "AdiClockLib", ",", "\"\<void\>\"", 
+      ",", 
+      RowBox[{"{", "\"\<unsigned int[]\>\"", "}"}]}], "]"}]}], ";"}], 
+  "\n"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"IsConnected", "=", 
+    RowBox[{"DefineDLLFunction", "[", 
+     RowBox[{
+     "\"\<IsConnected\>\"", ",", "AdiClockLib", ",", "\"\<int\>\"", ",", 
+      RowBox[{"{", "\"\<int\>\"", "}"}]}], "]"}]}], ";"}], 
+  "\[IndentingNewLine]"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"GetPortValue", "=", 
+    RowBox[{"DefineDLLFunction", "[", 
+     RowBox[{
+     "\"\<GetPortValue\>\"", ",", "AdiClockLib", ",", "\"\<int\>\"", ",", 
+      RowBox[{"{", 
+       RowBox[{
+       "\"\<int\>\"", ",", "\"\<int\>\"", ",", "\"\<unsigned int[]\>\""}], 
+       "}"}]}], "]"}]}], ";"}], "\n"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"SetPortValue", "=", 
+    RowBox[{"DefineDLLFunction", "[", 
+     RowBox[{
+     "\"\<SetPortValue\>\"", ",", "AdiClockLib", ",", "\"\<int\>\"", ",", 
+      RowBox[{"{", 
+       RowBox[{"\"\<int\>\"", ",", "\"\<int\>\"", ",", "\"\<char\>\""}], 
+       "}"}]}], "]"}]}], ";"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"SetPortConfig", "=", 
+    RowBox[{"DefineDLLFunction", "[", 
+     RowBox[{
+     "\"\<SetPortConfig\>\"", ",", "AdiClockLib", ",", "\"\<int\>\"", ",", 
+      RowBox[{"{", 
+       RowBox[{"\"\<int\>\"", ",", "\"\<int\>\"", ",", "\"\<char\>\""}], 
+       "}"}]}], "]"}]}], ";"}], "\[IndentingNewLine]"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"SpiRead", "=", 
+    RowBox[{"DefineDLLFunction", "[", 
+     RowBox[{"\"\<SpiRead\>\"", ",", "AdiClockLib", ",", "\"\<int\>\"", ",", 
+      RowBox[{"{", 
+       RowBox[{
+       "\"\<int\>\"", ",", "\"\<System.Byte[]\>\"", ",", "\"\<int\>\"", ",", 
+        "\"\<System.Byte[]\>\"", ",", "\"\<int\>\"", ",", "\"\<int\>\""}], 
+       "}"}]}], "]"}]}], ";"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"SpiWrite", "=", 
+    RowBox[{"DefineDLLFunction", "[", 
+     RowBox[{"\"\<SpiWrite\>\"", ",", "AdiClockLib", ",", "\"\<int\>\"", ",", 
+      RowBox[{"{", 
+       RowBox[{
+       "\"\<int\>\"", ",", "\"\<System.Byte[]\>\"", ",", "\"\<int\>\""}], 
+       "}"}]}], "]"}]}], ";"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"GetEvbdInfo", "=", 
+   RowBox[{"DefineDLLFunction", "[", 
+    RowBox[{
+    "\"\<GetEvbdInfo\>\"", ",", "AdiClockLib", ",", "\"\<void\>\"", ",", 
+     RowBox[{"{", 
+      RowBox[{
+      "\"\<int\>\"", ",", "\"\<System.Byte[]\>\"", ",", 
+       "\"\<ref System.UInt32\>\""}], "}"}]}], "]"}]}], ";"}]}], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{{3.7039271999440475`*^9, 3.703927253910946*^9}, {
+   3.7039274099729133`*^9, 3.7039274175814295`*^9}, 3.703927623018225*^9, {
+   3.7039725128887787`*^9, 3.703972530581791*^9}, {3.703984465699441*^9, 
+   3.703984467889566*^9}, {3.7039954220687213`*^9, 3.7039954363165364`*^9}, {
+   3.7039960046400423`*^9, 3.703996018255821*^9}, {3.7039998450176997`*^9, 
+   3.70399986093761*^9}, {3.7039999324977036`*^9, 3.703999963320466*^9}, {
+   3.7040002281836157`*^9, 3.704000228350625*^9}, {3.704000465670199*^9, 
+   3.7040004932537766`*^9}, {3.7040005626247444`*^9, 3.704000568481079*^9}, {
+   3.7040006051861787`*^9, 3.7040007355596356`*^9}, {3.7040008487351093`*^9, 
+   3.7040009044912977`*^9}, {3.704000944166567*^9, 3.7040009547571735`*^9}, {
+   3.7040013652986546`*^9, 3.7040014127423687`*^9}, {3.7040176584485693`*^9, 
+   3.704017673629438*^9}, {3.7040177491317563`*^9, 3.704017769093898*^9}, {
+   3.70401782436506*^9, 3.704017842708109*^9}, {3.7040588343716974`*^9, 
+   3.704058852821753*^9}, {3.7040614367191277`*^9, 3.7040614578793383`*^9}, {
+   3.704061500551779*^9, 3.704061563302368*^9}, {3.704061630254197*^9, 
+   3.7040616401987658`*^9}, {3.704065742872077*^9, 3.704065751984598*^9}, {
+   3.704073849805767*^9, 3.7040739039108615`*^9}, {3.70407403011808*^9, 
+   3.704074034156311*^9}, {3.704074886968089*^9, 3.704074887039093*^9}, {
+   3.7040749718159423`*^9, 3.704074977094244*^9}, {3.7040756023790083`*^9, 
+   3.704075630882639*^9}, {3.7044186317680407`*^9, 3.7044186325040827`*^9}, {
+   3.7044186936475797`*^9, 3.7044187389971733`*^9}, 3.704419477571418*^9, {
+   3.704419645792039*^9, 3.704419654911561*^9}, {3.7044204516081295`*^9, 
+   3.704420460872659*^9}, 3.7044205506247926`*^9, {3.7044280541595025`*^9, 
+   3.70442806932537*^9}, {3.7044322745483985`*^9, 3.7044322860284147`*^9}, {
+   3.7044946543331547`*^9, 3.7044946545731688`*^9}, {3.70762196152299*^9, 
+   3.707621984563667*^9}, {3.707622028869505*^9, 3.707622031888894*^9}, {
+   3.7076247268958693`*^9, 3.707624742255748*^9}, {3.7076262708451777`*^9, 
+   3.7076262819328117`*^9}, 3.7076265096278353`*^9, {3.707629071081342*^9, 
+   3.707629112088688*^9}, {3.7076291774164243`*^9, 3.707629179104521*^9}, {
+   3.7076296784450817`*^9, 3.707629687724612*^9}, {3.7076298176520433`*^9, 
+   3.7076298190751247`*^9}},
+ ExpressionUUID -> "50f1b5c2-3a5d-4805-91a0-be39cc1168b8"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Function", "Section",
+ CellChangeTimes->{{3.7039963234582777`*^9, 
+  3.7039963275325108`*^9}},ExpressionUUID->"c2920c0b-d40d-473e-abde-\
+aba7c2f6c8c1"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"DDSGetBoardID", "[", "hwnd_Integer", "]"}], ":=", 
+    RowBox[{"Module", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{"info", ",", "len", ",", "rtl", ",", "rti"}], "}"}], ",", 
+      "\[IndentingNewLine]", 
+      RowBox[{
+       RowBox[{"info", "=", 
+        RowBox[{"MakeNETObject", "[", 
+         RowBox[{
+          RowBox[{"ConstantArray", "[", 
+           RowBox[{"0", ",", "32"}], "]"}], ",", "\"\<System.Byte[]\>\""}], 
+         "]"}]}], ";", "\[IndentingNewLine]", 
+       RowBox[{"len", "=", 
+        RowBox[{"MakeNETObject", "[", 
+         RowBox[{"32", ",", "\"\<System.UInt32\>\""}], "]"}]}], ";", 
+       "\[IndentingNewLine]", 
+       RowBox[{"GetEvbdInfo", "[", 
+        RowBox[{"hwnd", ",", "info", ",", "len"}], "]"}], ";", 
+       "\[IndentingNewLine]", 
+       RowBox[{"rtl", "=", 
+        RowBox[{"NETObjectToExpression", "@", "len"}]}], ";", 
+       "\[IndentingNewLine]", 
+       RowBox[{"rti", "=", 
+        RowBox[{
+         RowBox[{"(", 
+          RowBox[{"NETObjectToExpression", "@", "info"}], ")"}], 
+         "\[LeftDoubleBracket]", 
+         RowBox[{"1", ";;", "rtl"}], "\[RightDoubleBracket]"}]}], ";", 
+       "\[IndentingNewLine]", 
+       RowBox[{
+        RowBox[{"256", 
+         RowBox[{
+         "rti", "\[LeftDoubleBracket]", "3", "\[RightDoubleBracket]"}]}], "+", 
+        RowBox[{
+        "rti", "\[LeftDoubleBracket]", "2", "\[RightDoubleBracket]"}]}]}]}], 
+     "\[IndentingNewLine]", "]"}]}], ";"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"DDSCards", "[", "]"}], ":=", 
+   RowBox[{"Module", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"vid", ",", "pid", ",", "num", ",", "tmp", ",", "handles"}], 
+      "}"}], ",", "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{"vid", "=", "1110"}], ";", "\[IndentingNewLine]", 
+      RowBox[{"pid", "=", "60965"}], ";", "\[IndentingNewLine]", 
+      RowBox[{"num", "=", 
+       RowBox[{"FindHardware", "[", 
+        RowBox[{"vid", ",", "pid", ",", "1"}], "]"}]}], ";", 
+      "\[IndentingNewLine]", 
+      RowBox[{"DDSHandles", "=", 
+       RowBox[{"\[LeftAssociation]", "\[RightAssociation]"}]}], ";", 
+      "\[IndentingNewLine]", 
+      RowBox[{"handles", "=", 
+       RowBox[{"MakeNETObject", "@", 
+        RowBox[{"ConstantArray", "[", 
+         RowBox[{"0", ",", "num"}], "]"}]}]}], ";", "\[IndentingNewLine]", 
+      RowBox[{"GetHardwareHandles", "[", "handles", "]"}], ";", 
+      "\[IndentingNewLine]", 
+      RowBox[{"tmp", "=", 
+       RowBox[{"NETObjectToExpression", "@", "handles"}]}], ";", 
+      "\[IndentingNewLine]", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"(", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"DDSHandles", "[", 
+            RowBox[{"DDSGetBoardID", "[", "#", "]"}], "]"}], "=", "#"}], 
+          ";"}], ")"}], "&"}], "/@", "tmp"}], ";", "\[IndentingNewLine]", 
+      "DDSHandles"}]}], "\[IndentingNewLine]", "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"DDSCards", "[", "]"}], ";"}], "\n"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"DDSHandle", "[", "id_Integer", "]"}], ":=", 
+    RowBox[{"DDSHandles", "[", "id", "]"}]}], ";"}], 
+  "\n"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"DDSGetPortValue", "[", 
+     RowBox[{"id_Integer", ",", "port_Integer"}], "]"}], ":=", 
+    RowBox[{"Module", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{"val", ",", "ret"}], "}"}], ",", "\[IndentingNewLine]", 
+      RowBox[{
+       RowBox[{"val", "=", 
+        RowBox[{"MakeNETObject", "@", 
+         RowBox[{"{", "0", "}"}]}]}], ";", "\[IndentingNewLine]", 
+       RowBox[{"GetPortValue", "[", 
+        RowBox[{
+         RowBox[{"DDSHandle", "[", "id", "]"}], ",", "port", ",", "val"}], 
+        "]"}], ";", "\[IndentingNewLine]", 
+       RowBox[{
+        RowBox[{"(", 
+         RowBox[{"NETObjectToExpression", "@", "val"}], ")"}], 
+        "\[LeftDoubleBracket]", "1", "\[RightDoubleBracket]"}]}]}], 
+     "\[IndentingNewLine]", "]"}]}], ";"}], "\n"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"DDSSetPortValue", "[", 
+     RowBox[{"id_Integer", ",", "port_Integer", ",", "val_Integer"}], "]"}], ":=", 
+    RowBox[{"SetPortValue", "[", 
+     RowBox[{
+      RowBox[{"DDSHandle", "[", "id", "]"}], ",", "port", ",", "val"}], 
+     "]"}]}], ";"}], "\n"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"DDSSetPortConfig", "[", 
+     RowBox[{"id_Integer", ",", "port_Integer", ",", "val_Integer"}], "]"}], ":=", 
+    RowBox[{"SetPortConfig", "[", 
+     RowBox[{
+      RowBox[{"DDSHandle", "[", "id", "]"}], ",", "port", ",", "val"}], 
+     "]"}]}], ";"}], "\[IndentingNewLine]"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"FormatWData", "[", "dat_Integer", "]"}], ":=", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"Mod", "[", 
+         RowBox[{"#", ",", "256"}], "]"}], ",", 
+        RowBox[{"Quotient", "[", 
+         RowBox[{"#", ",", "256"}], "]"}]}], "}"}], "&"}], "[", 
+     RowBox[{"2", 
+      RowBox[{"FromDigits", "[", 
+       RowBox[{
+        RowBox[{"Riffle", "[", 
+         RowBox[{
+          RowBox[{"IntegerDigits", "[", 
+           RowBox[{"dat", ",", "2", ",", "8"}], "]"}], ",", "0"}], "]"}], ",",
+         "2"}], "]"}]}], "]"}]}], ";"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"FormatWData", "[", "dat_List", "]"}], ":=", 
+    RowBox[{"Flatten", "[", 
+     RowBox[{"Reverse", "[", 
+      RowBox[{"FormatWData", "/@", "dat"}], "]"}], "]"}]}], ";"}], 
+  "\n"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"FormatRData", "[", "dat_List", "]"}], ":=", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"FromDigits", "[", 
+       RowBox[{"#", ",", "2"}], "]"}], "&"}], "/@", 
+     RowBox[{"Partition", "[", 
+      RowBox[{
+       RowBox[{"Flatten", "[", 
+        RowBox[{"Reverse", "[", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"Drop", "[", 
+            RowBox[{
+             RowBox[{"IntegerDigits", "[", 
+              RowBox[{"#", ",", "2", ",", "8"}], "]"}], ",", 
+             RowBox[{"{", 
+              RowBox[{"2", ",", "8", ",", "2"}], "}"}]}], "]"}], "&"}], "/@", 
+          "dat"}], "]"}], "]"}], ",", "8"}], "]"}]}]}], ";"}], 
+  "\n"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"GetRegLen", "[", "reg_Integer", "]"}], ":=", 
+    RowBox[{"RegLength", "\[LeftDoubleBracket]", 
+     RowBox[{"reg", "+", "1"}], "\[RightDoubleBracket]"}]}], ";"}], 
+  "\n"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"DDSGetRegValue", "[", 
+     RowBox[{"id_Integer", ",", "reg_Integer"}], "]"}], ":=", 
+    RowBox[{"Module", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{"wdat", ",", "len", ",", "rdat", ",", "ret"}], "}"}], ",", 
+      "\[IndentingNewLine]", 
+      RowBox[{
+       RowBox[{"wdat", "=", 
+        RowBox[{"MakeNETObject", "[", 
+         RowBox[{
+          RowBox[{"FormatWData", "[", 
+           RowBox[{"128", "+", "reg"}], "]"}], ",", "\"\<System.Byte[]\>\""}],
+          "]"}]}], ";", "\[IndentingNewLine]", 
+       RowBox[{"len", "=", 
+        RowBox[{"GetRegLen", "[", "reg", "]"}]}], ";", "\[IndentingNewLine]", 
+       RowBox[{"rdat", "=", 
+        RowBox[{"MakeNETObject", "[", 
+         RowBox[{
+          RowBox[{"ConstantArray", "[", 
+           RowBox[{"0", ",", 
+            RowBox[{"2", "len"}]}], "]"}], ",", "\"\<System.Byte[]\>\""}], 
+         "]"}]}], ";", "\[IndentingNewLine]", 
+       RowBox[{"SpiRead", "[", 
+        RowBox[{
+         RowBox[{"DDSHandle", "[", "id", "]"}], ",", "wdat", ",", "2", ",", 
+         "rdat", ",", 
+         RowBox[{"2", "len"}], ",", "0"}], "]"}], ";", "\[IndentingNewLine]", 
+       RowBox[{"FormatRData", "[", 
+        RowBox[{"NETObjectToExpression", "@", "rdat"}], "]"}]}]}], 
+     "\[IndentingNewLine]", "]"}]}], ";"}], "\[IndentingNewLine]"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"DDSSetRegValue", "[", 
+    RowBox[{"id_Integer", ",", "reg_Integer", ",", "val_List"}], "]"}], ":=", 
+   RowBox[{"Module", "[", 
+    RowBox[{
+     RowBox[{"{", "buf", "}"}], ",", "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{"buf", "=", 
+       RowBox[{"MakeNETObject", "[", 
+        RowBox[{
+         RowBox[{"FormatWData", "[", 
+          RowBox[{"Prepend", "[", 
+           RowBox[{"val", ",", "reg"}], "]"}], "]"}], ",", 
+         "\"\<System.Byte[]\>\""}], "]"}]}], ";", "\[IndentingNewLine]", 
+      RowBox[{"SpiWrite", "[", 
+       RowBox[{
+        RowBox[{"DDSHandle", "[", "id", "]"}], ",", "buf", ",", 
+        RowBox[{
+         RowBox[{"2", 
+          RowBox[{"Length", "[", "val", "]"}]}], "+", "2"}]}], "]"}], ";"}]}],
+     "\[IndentingNewLine]", "]"}]}], ";"}]}], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{{3.7044235143953104`*^9, 3.7044235347084723`*^9}, 
+   3.704424474521759*^9, {3.7044276167484837`*^9, 3.704427617964554*^9}, {
+   3.704429088218647*^9, 3.704429099906316*^9}, {3.704429325009191*^9, 
+   3.7044293279833612`*^9}, {3.704432308218446*^9, 3.704432315448456*^9}, {
+   3.704494539689597*^9, 3.7044945420717335`*^9}, {3.704494573718544*^9, 
+   3.7044945910705366`*^9}, {3.7076291349869976`*^9, 3.707629161417509*^9}, {
+   3.707629232120553*^9, 3.7076292583040504`*^9}, 3.7076297003743353`*^9, {
+   3.707629832691904*^9, 3.7076298331409297`*^9}, {3.7076307527895308`*^9, 
+   3.7076307817811885`*^9}, {3.7076308133569946`*^9, 3.707630869165187*^9}, {
+   3.7076309087084484`*^9, 3.7076309676848216`*^9}, {3.707631206771497*^9, 
+   3.7076312124258204`*^9}, 3.708839159306424*^9, {3.7088392135705276`*^9, 
+   3.7088392243861465`*^9}, {3.7088397216755896`*^9, 3.708839726213849*^9}, {
+   3.7468480528054037`*^9, 3.7468480772951903`*^9}, {3.7468512384581223`*^9, 
+   3.7468512429823875`*^9}, {3.7468514120426235`*^9, 
+   3.7468514158385067`*^9}, {3.7468518541478567`*^9, 3.746851894060822*^9}, {
+   3.7468583696605754`*^9, 3.746858369934698*^9}, {3.7468584068406525`*^9, 
+   3.7468584296891165`*^9}, {3.746858476426405*^9, 3.746858480549096*^9}},
+ ExpressionUUID -> "c8264bde-73e0-4058-adb4-1b2f864185be"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Definition - Utilities", "Section",
+ CellChangeTimes->{{3.6046429445346966`*^9, 3.604642957117416*^9}, {
+  3.704162119717905*^9, 3.704162124567537*^9}, {3.7041648417931023`*^9, 
+  3.704164844907506*^9}},ExpressionUUID->"79b408af-93d7-44e5-96b5-\
+d6bd2a577271"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"MasterReset", "[", "id_Integer", "]"}], ":=", 
+    RowBox[{"Module", "[", 
+     RowBox[{
+      RowBox[{"{", "val", "}"}], ",", "\[IndentingNewLine]", 
+      RowBox[{
+       RowBox[{"val", "=", 
+        RowBox[{"BitAnd", "[", 
+         RowBox[{
+          RowBox[{"DDSGetPortValue", "[", 
+           RowBox[{"id", ",", "0"}], "]"}], ",", "2^^11110111"}], "]"}]}], 
+       ";", "\[IndentingNewLine]", 
+       RowBox[{"DDSSetPortValue", "[", 
+        RowBox[{"id", ",", "0", ",", "val"}], "]"}], ";", 
+       "\[IndentingNewLine]", 
+       RowBox[{"DDSSetPortValue", "[", 
+        RowBox[{"id", ",", "0", ",", 
+         RowBox[{"val", "+", "8"}]}], "]"}], ";", "\[IndentingNewLine]", 
+       RowBox[{"DDSSetPortValue", "[", 
+        RowBox[{"id", ",", "0", ",", "val"}], "]"}], ";"}]}], 
+     "\[IndentingNewLine]", "]"}]}], ";"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"TriggerIOUpdate", "[", "id_Integer", "]"}], ":=", 
+    RowBox[{"Module", "[", 
+     RowBox[{
+      RowBox[{"{", "val", "}"}], ",", "\[IndentingNewLine]", 
+      RowBox[{
+       RowBox[{"val", "=", 
+        RowBox[{"BitAnd", "[", 
+         RowBox[{
+          RowBox[{"DDSGetPortValue", "[", 
+           RowBox[{"id", ",", "4"}], "]"}], ",", "2^^11101111"}], "]"}]}], 
+       ";", "\[IndentingNewLine]", 
+       RowBox[{"DDSSetPortValue", "[", 
+        RowBox[{"id", ",", "4", ",", "val"}], "]"}], ";", 
+       "\[IndentingNewLine]", 
+       RowBox[{"DDSSetPortValue", "[", 
+        RowBox[{"id", ",", "4", ",", 
+         RowBox[{"val", "+", "16"}]}], "]"}], ";", "\[IndentingNewLine]", 
+       RowBox[{"DDSSetPortValue", "[", 
+        RowBox[{"id", ",", "4", ",", "val"}], "]"}], ";"}]}], 
+     "\[IndentingNewLine]", "]"}]}], ";"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"TriggerIOReset", "[", "id_Integer", "]"}], ":=", 
+    RowBox[{"Module", "[", 
+     RowBox[{
+      RowBox[{"{", "val", "}"}], ",", "\[IndentingNewLine]", 
+      RowBox[{
+       RowBox[{"val", "=", 
+        RowBox[{"BitAnd", "[", 
+         RowBox[{
+          RowBox[{"DDSGetPortValue", "[", 
+           RowBox[{"id", ",", "0"}], "]"}], ",", "2^^11111011"}], "]"}]}], 
+       ";", "\[IndentingNewLine]", 
+       RowBox[{"DDSSetPortValue", "[", 
+        RowBox[{"id", ",", "0", ",", "val"}], "]"}], ";", 
+       "\[IndentingNewLine]", 
+       RowBox[{"DDSSetPortValue", "[", 
+        RowBox[{"id", ",", "0", ",", 
+         RowBox[{"val", "+", "4"}]}], "]"}], ";", "\[IndentingNewLine]", 
+       RowBox[{"DDSSetPortValue", "[", 
+        RowBox[{"id", ",", "0", ",", "val"}], "]"}], ";"}]}], 
+     "\[IndentingNewLine]", "]"}]}], ";"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"SetCurrentProfile", "[", 
+     RowBox[{"id_Integer", ",", "prof_Integer"}], "]"}], ":=", 
+    RowBox[{"Module", "[", 
+     RowBox[{
+      RowBox[{"{", "val", "}"}], ",", "\[IndentingNewLine]", 
+      RowBox[{
+       RowBox[{"val", "=", 
+        RowBox[{"BitAnd", "[", 
+         RowBox[{
+          RowBox[{"DDSGetPortValue", "[", 
+           RowBox[{"id", ",", "4"}], "]"}], ",", "2^^11111000"}], "]"}]}], 
+       ";", "\[IndentingNewLine]", 
+       RowBox[{"DDSSetPortValue", "[", 
+        RowBox[{"id", ",", "4", ",", 
+         RowBox[{"val", "+", "prof"}]}], "]"}], ";"}]}], 
+     "\[IndentingNewLine]", "]"}]}], ";"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"DDSInit", "[", "id_Integer", "]"}], ":=", 
+    RowBox[{"Module", "[", 
+     RowBox[{
+      RowBox[{"{", "}"}], ",", "\[IndentingNewLine]", 
+      RowBox[{
+       RowBox[{"DownloadFirmware", "[", 
+        RowBox[{
+         RowBox[{"DDSHandle", "[", "id", "]"}], ",", "HEXFile"}], "]"}], ";", 
+       "\[IndentingNewLine]", 
+       RowBox[{"DDSSetPortConfig", "[", 
+        RowBox[{"id", ",", "4", ",", "255"}], "]"}], ";", 
+       "\[IndentingNewLine]", 
+       RowBox[{"MasterReset", "[", "id", "]"}], ";", "\[IndentingNewLine]", 
+       RowBox[{"DDSSetRegValue", "[", 
+        RowBox[{"id", ",", "0", ",", 
+         RowBox[{"{", 
+          RowBox[{"16^^00", ",", "16^^00", ",", "16^^00", ",", "16^^00"}], 
+          "}"}]}], "]"}], ";", "\[IndentingNewLine]", 
+       RowBox[{"DDSSetRegValue", "[", 
+        RowBox[{"id", ",", "1", ",", 
+         RowBox[{"{", 
+          RowBox[{"16^^01", ",", "16^^40", ",", "16^^08", ",", "16^^20"}], 
+          "}"}]}], "]"}], ";", "\[IndentingNewLine]", 
+       RowBox[{"DDSSetRegValue", "[", 
+        RowBox[{"id", ",", "2", ",", 
+         RowBox[{"{", 
+          RowBox[{"16^^1F", ",", "16^^3F", ",", "16^^C0", ",", "16^^00"}], 
+          "}"}]}], "]"}], ";", "\[IndentingNewLine]", 
+       RowBox[{"DDSSetRegValue", "[", 
+        RowBox[{"id", ",", "3", ",", 
+         RowBox[{"{", 
+          RowBox[{"16^^00", ",", "16^^00", ",", "16^^7F", ",", "16^^FF"}], 
+          "}"}]}], "]"}], ";", "\[IndentingNewLine]", 
+       RowBox[{"DDSSetRegValue", "[", 
+        RowBox[{"id", ",", "16^^0A", ",", 
+         RowBox[{"{", 
+          RowBox[{"16^^7C", ",", "16^^00", ",", "16^^40", ",", "16^^00"}], 
+          "}"}]}], "]"}], ";", "\[IndentingNewLine]", 
+       RowBox[{"DDSSetRegValue", "[", 
+        RowBox[{"id", ",", "16^^0E", ",", 
+         RowBox[{"{", 
+          RowBox[{
+          "16^^3F", ",", "16^^FF", ",", "16^^00", ",", "16^^00", ",", 
+           "16^^33", ",", "16^^33", ",", "16^^33", ",", "16^^33"}], "}"}]}], 
+        "]"}], ";", "\[IndentingNewLine]", 
+       RowBox[{"TriggerIOUpdate", "[", "id", "]"}], ";"}]}], 
+     "\[IndentingNewLine]", "]"}]}], ";"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"ReadProfile", "[", 
+     RowBox[{"id_Integer", ",", "prof_Integer"}], "]"}], ":=", 
+    RowBox[{"Module", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{"tmp", ",", "buf", ",", "f", ",", "p", ",", "a"}], "}"}], ",", 
+      "\[IndentingNewLine]", 
+      RowBox[{
+       RowBox[{"tmp", "=", 
+        RowBox[{"DDSGetPortValue", "[", 
+         RowBox[{"id", ",", "4"}], "]"}]}], ";", "\[IndentingNewLine]", 
+       RowBox[{"SetCurrentProfile", "[", 
+        RowBox[{"id", ",", "prof"}], "]"}], ";", "\[IndentingNewLine]", 
+       RowBox[{"buf", "=", 
+        RowBox[{"FromDigits", "[", 
+         RowBox[{
+          RowBox[{"DDSGetRegValue", "[", 
+           RowBox[{"id", ",", 
+            RowBox[{"16^^0E", "+", "prof"}]}], "]"}], ",", "256"}], "]"}]}], 
+       ";", "\[IndentingNewLine]", 
+       RowBox[{"DDSSetPortValue", "[", 
+        RowBox[{"id", ",", "4", ",", "tmp"}], "]"}], ";", 
+       "\[IndentingNewLine]", 
+       RowBox[{"f", "=", 
+        RowBox[{
+         RowBox[{"Mod", "[", 
+          RowBox[{"buf", ",", 
+           SuperscriptBox["2", "32"]}], "]"}], 
+         RowBox[{"SYSCLK", "/", 
+          SuperscriptBox["2", "32"]}]}]}], ";", "\[IndentingNewLine]", 
+       RowBox[{"p", "=", 
+        RowBox[{
+         RowBox[{"Mod", "[", 
+          RowBox[{
+           RowBox[{"BitShiftRight", "[", 
+            RowBox[{"buf", ",", "32"}], "]"}], ",", 
+           SuperscriptBox["2", "16"]}], "]"}], "2", 
+         RowBox[{"\[Pi]", "/", 
+          SuperscriptBox["2", "16"]}]}]}], ";", "\[IndentingNewLine]", 
+       RowBox[{"a", "=", 
+        RowBox[{
+         RowBox[{"Mod", "[", 
+          RowBox[{
+           RowBox[{"BitShiftRight", "[", 
+            RowBox[{"buf", ",", "48"}], "]"}], ",", 
+           SuperscriptBox["2", "14"]}], "]"}], "/", 
+         SuperscriptBox["2", "14"]}]}], ";", "\[IndentingNewLine]", 
+       RowBox[{"{", 
+        RowBox[{"f", ",", "p", ",", "a"}], "}"}]}]}], "\[IndentingNewLine]", 
+     "]"}]}], ";"}], "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"WriteProfile", "[", 
+    RowBox[{"id_Integer", ",", "prof_Integer", ",", 
+     RowBox[{"{", 
+      RowBox[{"f_", ",", "p_", ",", "a_"}], "}"}]}], "]"}], ":=", 
+   RowBox[{"Module", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"tmp", ",", "ftw", ",", "pow", ",", "asf"}], "}"}], ",", 
+     "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{"ftw", "=", 
+       RowBox[{"Round", "[", 
+        RowBox[{
+         SuperscriptBox["2", "32"], 
+         RowBox[{"f", "/", "SYSCLK"}]}], "]"}]}], ";", "\[IndentingNewLine]", 
+      RowBox[{"pow", "=", 
+       RowBox[{"BitShiftLeft", "[", 
+        RowBox[{
+         RowBox[{"Round", "[", 
+          RowBox[{
+           SuperscriptBox["2", "16"], 
+           RowBox[{
+            RowBox[{"Mod", "[", 
+             RowBox[{"p", ",", 
+              RowBox[{"2", "\[Pi]"}]}], "]"}], "/", 
+            RowBox[{"(", 
+             RowBox[{"2", "\[Pi]"}], ")"}]}]}], "]"}], ",", "32"}], "]"}]}], 
+      ";", "\[IndentingNewLine]", 
+      RowBox[{"asf", "=", 
+       RowBox[{"BitShiftLeft", "[", 
+        RowBox[{
+         RowBox[{"Round", "[", 
+          RowBox[{
+           SuperscriptBox["2", "14"], 
+           RowBox[{"Min", "[", 
+            RowBox[{"a", ",", 
+             RowBox[{"1", "-", 
+              SuperscriptBox["2", 
+               RowBox[{"-", "14"}]]}]}], "]"}]}], "]"}], ",", "48"}], "]"}]}],
+       ";", "\[IndentingNewLine]", 
+      RowBox[{"tmp", "=", 
+       RowBox[{"DDSGetPortValue", "[", 
+        RowBox[{"id", ",", "4"}], "]"}]}], ";", "\[IndentingNewLine]", 
+      RowBox[{"SetCurrentProfile", "[", 
+       RowBox[{"id", ",", "prof"}], "]"}], ";", "\[IndentingNewLine]", 
+      RowBox[{"DDSSetRegValue", "[", 
+       RowBox[{"id", ",", 
+        RowBox[{"16^^0E", "+", "prof"}], ",", 
+        RowBox[{"IntegerDigits", "[", 
+         RowBox[{
+          RowBox[{"asf", "+", "pow", "+", "ftw"}], ",", "256", ",", "8"}], 
+         "]"}]}], "]"}], ";", "\[IndentingNewLine]", 
+      RowBox[{"DDSSetPortValue", "[", 
+       RowBox[{"id", ",", "4", ",", "tmp"}], "]"}], ";", 
+      "\[IndentingNewLine]", 
+      RowBox[{"TriggerIOUpdate", "[", "id", "]"}], ";"}]}], 
+    "\[IndentingNewLine]", "]"}]}], ";"}]}], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{{3.704164866652326*^9, 3.70416503449908*^9}, {
+   3.704165164993995*^9, 3.7041651973601913`*^9}, {3.704165243403158*^9, 
+   3.704165296823453*^9}, {3.704165996220551*^9, 3.7041660678249655`*^9}, {
+   3.7041661463892126`*^9, 3.704166240178556*^9}, {3.7041662767784166`*^9, 
+   3.704166282265128*^9}, {3.7041663813081365`*^9, 3.7041664657802353`*^9}, {
+   3.7041665057834225`*^9, 3.704166523200679*^9}, {3.704166559236536*^9, 
+   3.7041665722392044`*^9}, {3.7041673710281305`*^9, 3.704167450634118*^9}, {
+   3.7041675082746363`*^9, 3.7041675387315817`*^9}, {3.7041675853797803`*^9, 
+   3.7041676067265606`*^9}, {3.7041676495260916`*^9, 
+   3.7041677632464957`*^9}, {3.704168134243767*^9, 3.7041681742579527`*^9}, {
+   3.704168498136259*^9, 3.70416850874763*^9}, {3.7041686252943525`*^9, 
+   3.7041686666187105`*^9}, {3.7041695158640842`*^9, 
+   3.7041698000651584`*^9}, {3.7044173852401166`*^9, 
+   3.7044173859762125`*^9}, {3.704420899879769*^9, 3.7044209445583243`*^9}, {
+   3.7044210139352922`*^9, 3.7044210299312077`*^9}, {3.704429572780363*^9, 
+   3.704429582487918*^9}, {3.7044298097489166`*^9, 3.704429850517248*^9}, {
+   3.7044310075236025`*^9, 3.704431013265355*^9}, {3.70443104602376*^9, 
+   3.7044310773821373`*^9}, {3.704495257730667*^9, 3.7044953102886734`*^9}, {
+   3.7044953622886477`*^9, 3.704495481095443*^9}, {3.7044956496640844`*^9, 
+   3.704495668103139*^9}, {3.704495777446393*^9, 3.704495809302215*^9}, {
+   3.7044959497492485`*^9, 3.7044960892752285`*^9}, {3.70449622706711*^9, 
+   3.7044962953700166`*^9}, {3.704496553506781*^9, 3.7044965535617847`*^9}, {
+   3.704496617530443*^9, 3.704496660471899*^9}, {3.7044970204784904`*^9, 
+   3.7044970210225215`*^9}, {3.7045059012474413`*^9, 3.704505901311445*^9}, {
+   3.7045059748006487`*^9, 3.704505977583808*^9}, {3.704506048519865*^9, 
+   3.7045060718952017`*^9}, {3.7045061448313737`*^9, 
+   3.7045061449513807`*^9}, {3.704506197270373*^9, 3.7045061978624067`*^9}, {
+   3.704506243093994*^9, 3.7045062931018543`*^9}, {3.7045063446298018`*^9, 
+   3.7045063498611007`*^9}, {3.7045063859421644`*^9, 3.70450647853146*^9}, {
+   3.704506589244793*^9, 3.704506591675932*^9}, {3.7076224539388947`*^9, 
+   3.7076224742266307`*^9}, {3.7076225117244196`*^9, 
+   3.7076225168970804`*^9}, {3.707623922062835*^9, 3.707623926390083*^9}, {
+   3.7076265743005342`*^9, 3.7076265850271482`*^9}, 3.7076284945113645`*^9, {
+   3.7076294948185787`*^9, 3.7076295385270786`*^9}, {3.712455575222989*^9, 
+   3.7124555753019943`*^9}, {3.712455840780178*^9, 3.712455840820181*^9}, {
+   3.7530834740227532`*^9, 3.753083489612732*^9}, {3.75308358831676*^9, 
+   3.753083594532282*^9}},
+ ExpressionUUID -> "58af704b-adfa-4247-a08c-59629ec23887"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Example", "Section",
+ CellChangeTimes->{{3.6046429928574605`*^9, 3.604642995613618*^9}, {
+  3.7041710979090405`*^9, 3.7041711005171895`*^9}},
+ ExpressionUUID -> "c70f25fd-a610-4592-9001-e179fc212d2e"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"DDSCards", "[", "]"}]], "Input",
+ CellChangeTimes->{{3.7468512525835695`*^9, 3.7468512540727463`*^9}}],
+
+Cell[BoxData[
+ RowBox[{"\[LeftAssociation]", 
+  RowBox[{
+   RowBox[{"2", "\[Rule]", "0"}], ",", 
+   RowBox[{"5", "\[Rule]", "1"}], ",", 
+   RowBox[{"3", "\[Rule]", "2"}], ",", 
+   RowBox[{"4", "\[Rule]", "3"}]}], "\[RightAssociation]"}]], "Output",
+ CellChangeTimes->{3.7468512544478874`*^9, 3.7468513623953524`*^9, 
+  3.7468584357002163`*^9, 3.746858551104828*^9, 3.746858738387989*^9, 
+  3.753083176495185*^9}]
+}, Open  ]],
+
+Cell[BoxData[
+ RowBox[{"MasterReset", "[", "3", "]"}]], "Input",
+ CellChangeTimes->{{3.704427640871864*^9, 3.704427644111049*^9}, {
+  3.746858493608938*^9, 3.746858493809516*^9}, {3.746858740730106*^9, 
+  3.746858740923417*^9}},
+ ExpressionUUID -> "0f0fac66-5e5c-41ef-9594-f7f8cfd2a2ae"],
+
+Cell[BoxData[
+ RowBox[{"DDSInit", "[", "3", "]"}]], "Input",
+ CellChangeTimes->{{3.7041702387739005`*^9, 3.7041702423081026`*^9}, 
+   3.7468584963449287`*^9, {3.746858743444585*^9, 3.74685874363888*^9}, 
+   3.7530831857868834`*^9},
+ ExpressionUUID -> "fb44f434-18be-47ff-875a-1eee20c0224b"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{"DDSSetRegValue", "[", 
+  RowBox[{"4", ",", "16^^0E", ",", 
+   RowBox[{"{", 
+    RowBox[{
+    "16^^03", ",", "16^^ff", ",", "16^^00", ",", "16^^00", ",", "16^^33", ",",
+      "16^^33", ",", "16^^33", ",", "16^^33"}], "}"}]}], 
+  "]"}], "\[IndentingNewLine]", 
+ RowBox[{"TriggerIOUpdate", "[", "4", "]"}], "\[IndentingNewLine]", 
+ RowBox[{"N", "@", 
+  RowBox[{"ReadProfile", "[", 
+   RowBox[{"4", ",", "0"}], "]"}]}]}], "Input",
+ CellChangeTimes->{{3.704429877078768*^9, 3.7044298816250277`*^9}, {
+  3.70443044638733*^9, 3.7044304468353558`*^9}, {3.746858539472643*^9, 
+  3.7468585418923845`*^9}},
+ ExpressionUUID -> "d7b73480-ed41-4e00-be25-571220118c96"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{"0.`", ",", "0.`", ",", "0.`"}], "}"}]], "Output",
+ CellChangeTimes->{{3.7044304474883933`*^9, 3.7044304848735313`*^9}, 
+   3.7044368269552774`*^9, {3.7468585335918713`*^9, 3.746858542163522*^9}},
+ ExpressionUUID -> "1a2706c0-66b8-4c31-8860-636d489f06c5"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{"WriteProfile", "[", 
+  RowBox[{"5", ",", "1", ",", 
+   RowBox[{"{", 
+    RowBox[{"200", ",", "0", ",", "0.3"}], "}"}]}], 
+  "]"}], "\[IndentingNewLine]", 
+ RowBox[{"N", "@", 
+  RowBox[{"ReadProfile", "[", 
+   RowBox[{"5", ",", "1"}], "]"}]}]}], "Input",
+ CellChangeTimes->{{3.7044303750032473`*^9, 3.7044305584117374`*^9}, {
+  3.704436835320756*^9, 3.704436933453369*^9}, {3.7468585141951637`*^9, 
+  3.7468585223132753`*^9}, {3.7468587487229347`*^9, 3.7468587505089025`*^9}, {
+  3.7530832091870823`*^9, 3.7530832289305625`*^9}, {3.7530832961949677`*^9, 
+  3.7530833461306796`*^9}, {3.7530834022267623`*^9, 3.7530834162282557`*^9}, {
+  3.7530834967226305`*^9, 3.753083496867015*^9}, {3.753083530394826*^9, 
+  3.753083533050886*^9}, {3.7530835702988677`*^9, 3.7530835777306213`*^9}},
+ ExpressionUUID -> "9552d9c5-412f-4d47-91f6-d0226e2c6196"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{"200.02699992619455`", ",", "0.`", ",", "0.20001220703125`"}], 
+  "}"}]], "Output",
+ CellChangeTimes->{{3.7044304194677906`*^9, 3.7044305587267556`*^9}, {
+   3.704436832208578*^9, 3.7044369345084295`*^9}, {3.74685852393884*^9, 
+   3.746858556529292*^9}, {3.746858750793522*^9, 3.7468587547285233`*^9}, {
+   3.7530832975465603`*^9, 3.7530833588446703`*^9}, {3.753083399461413*^9, 
+   3.753083416567156*^9}, {3.7530834945107527`*^9, 3.753083497236998*^9}, {
+   3.753083530753781*^9, 3.753083533438917*^9}, {3.7530835712764664`*^9, 
+   3.7530835756200123`*^9}, 3.7530836285520473`*^9},
+ ExpressionUUID -> "5fc6a28b-32b8-4e07-b464-6bcf000c2899"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"N", "@", 
+  RowBox[{"ReadProfile", "[", 
+   RowBox[{"5", ",", "1"}], "]"}]}]], "Input",
+ CellChangeTimes->{{3.753083238323529*^9, 3.7530832907875953`*^9}, {
+  3.7530835120751305`*^9, 3.7530835376029854`*^9}, {3.7530836655313406`*^9, 
+  3.753083676810321*^9}}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{"200.02699992619455`", ",", "0.`", ",", "0.20001220703125`"}], 
+  "}"}]], "Output",
+ CellChangeTimes->{{3.7530832361808343`*^9, 3.7530832910593357`*^9}, {
+  3.753083508754304*^9, 3.7530835379469004`*^9}, {3.7530836659263964`*^9, 
+  3.7530836771742887`*^9}}]
+}, Open  ]]
+}, Open  ]]
+},
+WindowSize->{805, 627},
+WindowMargins->{{Automatic, 387}, {85, Automatic}},
+Magnification:>1.1 Inherited,
+FrontEndVersion->"11.0 for Microsoft Windows (64-bit) (2016\:5e747\:670828\
+\:65e5)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[557, 20, 1639, 26, 96, "Input",
+ InitializationCell->True],
+Cell[CellGroupData[{
+Cell[2221, 50, 156, 3, 69, "Section"],
+Cell[2380, 55, 7214, 133, 602, "Input",
+ InitializationCell->True]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[9631, 193, 207, 4, 69, "Section"],
+Cell[9841, 199, 1123, 24, 74, "Input",
+ InitializationCell->True],
+Cell[10967, 225, 5863, 127, 646, "Input",
+ InitializationCell->True]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[16867, 357, 157, 3, 69, "Section"],
+Cell[17027, 362, 10199, 260, 1350, "Input",
+ InitializationCell->True]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[27263, 627, 266, 4, 69, "Section"],
+Cell[27532, 633, 12725, 294, 1395, "Input",
+ InitializationCell->True]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[40294, 932, 206, 3, 69, "Section"],
+Cell[CellGroupData[{
+Cell[40525, 939, 126, 2, 33, "Input"],
+Cell[40654, 943, 412, 9, 33, "Output"]
+}, Open  ]],
+Cell[41081, 955, 287, 5, 33, "Input"],
+Cell[41371, 962, 290, 5, 33, "Input"],
+Cell[CellGroupData[{
+Cell[41686, 971, 679, 15, 100, "Input"],
+Cell[42368, 988, 294, 5, 33, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[42699, 998, 865, 16, 56, "Input"],
+Cell[43567, 1016, 680, 11, 33, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[44284, 1032, 283, 6, 33, "Input"],
+Cell[44570, 1040, 296, 6, 33, "Output"]
+}, Open  ]]
+}, Open  ]]
+}
+]
+*)
+
