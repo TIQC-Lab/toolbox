@@ -13,13 +13,18 @@ dataFile = "data.dat"
 # ipFile = "settings.txt"
 IP = '192.168.32.154'
 
+VREF = 5.0
+offset_code = 0x2000
+WRITE_X = 3  # Write to DAC data (X) register
+channels = [0x08+i for i in range(32)]
 
 class App(QWidget):
     def __init__(self):
         super().__init__()
         self.setupUI()
         self.setConnect()
-        self.loadData()
+        self.loadData(True)
+        
 
     def createChannels(self):
         self.channels = [QtWidgets.QDoubleSpinBox() for i in range(32)]
@@ -51,8 +56,8 @@ class App(QWidget):
         self.shutterFrame = QGroupBox("Shutters")
         self.shutterFrame.setGeometry(10, 10, 950, 40)
         self.shutterFrame.setContentsMargins(1, 1, 1, 1)
-        buttons = ["Flip Mirror", "Protection", "399"]
-        nums = [13, 14, 15]
+        buttons = ["Flip Mirror", "Protection", "399", "935"]
+        nums = [13, 14, 15, 16]
         self.shutterArray = [QSpinBox() for i in range(len(buttons))]
         self.shutters = [QPushButton(buttons[i]) for i in range(len(buttons))]
         layout = QHBoxLayout()
@@ -137,7 +142,10 @@ class App(QWidget):
             self.set_voltage(channel, self.channels[channel].value())
         return update
 
-    def loadData(self):
+    def loadData(self, all = False):
+        """
+            This function is used to load data from local data file, while the argument 'all' is used to specify if all data will sent to the wifi server, otherwise we only change those whose value is different from the one imported from data file, which will generate a signal for the slot.
+        """
         exists = os.path.isfile(dataFile)
         if exists:
             data = np.loadtxt(dataFile)
@@ -149,9 +157,16 @@ class App(QWidget):
                 # errorDialog.showMessage("The data file is wrong!!!")
                 # raise SystemExit
             for i in range(32):
-                self.channels[i].setValue(data[i])
-                # print(data[i])
-                # self.set_voltage(i, data[i])
+                try:
+                    # print(i)
+                    if not data[i] == self.channels[i].value():
+                        self.channels[i].setValue(data[i])
+                    else:
+                        if all == True:
+                            self.set_voltage(i, data[i])
+                except requests.exceptions.RequestException as e:
+                    print(type(e))
+                    break
         else:
             np.savetxt(dataFile, np.zeros(32))
             self.reset()
@@ -170,6 +185,8 @@ class App(QWidget):
         except requests.exceptions.RequestException as e:
             print(type(e))
         # self.setIP()
+        for channel in self.channels:
+            channel.setValue(0)
         
     def updateShutter(self, num):
         def update():
@@ -188,19 +205,17 @@ class App(QWidget):
     def switch(self, ch):
         def update():
             if abs(self.channels[ch].value()) < 0.01 :
-                self.channels[ch].setValue(5.0)
+                # self.channels[ch].setValue(2.5)
+                self.channels[ch].setValue(5)
 
             elif abs(self.channels[ch].value() - 5) < 0.01:
+                # self.channels[ch].setValue(2.5)
                 self.channels[ch].setValue(0.0)
             else:
                 self.channels[ch].setValue(0.0)
         return update
 
     def set_voltage(self, channel, Vout):
-        VREF = 5.0
-        offset_code = 0x2000
-        WRITE_X = 3  # Write to DAC data (X) register
-        channels = [0x08+i for i in range(32)]
         if (abs(Vout) > 10.0):
             print("Voltage over range!")
             return
@@ -210,7 +225,7 @@ class App(QWidget):
         data = input_code + (channels[channel]<<16) + (mode_code<<22)
         try:
             with requests.Session() as s:
-                req = s.get('http://' + self.ipInput.text() + '/data/' + str(data))
+                res = s.get('http://' + self.ipInput.text() + '/data/' + str(data))
         except requests.exceptions.RequestException as e:
             print(type(e))
             
