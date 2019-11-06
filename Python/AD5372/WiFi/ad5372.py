@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+'''As an older version of AD5372, the communication protocol is based on the ESP wifi module. However, it won't be maintained anymore.'''
 
 import os
 import sys
