@@ -156,9 +156,14 @@ class DAC(QWidget):
         self.pre = QGroupBox("Settings")
         self.pre.setGeometry(10, 10, 950, 30)
         # self.pre.setContentsMargins(5, 5, 2, 2)
+        myfont = QFont()
+        myfont.setBold(True)
         self.update = QPushButton('Update')
+        self.update.setFont(myfont)
         self.load = QPushButton('Load')
+        self.load.setFont(myfont)
         self.save = QPushButton("Save")
+        self.save.setFont(myfont)
         hlayout = QHBoxLayout()
         hlayout.setContentsMargins(5, 5, 1, 1)
         hlayout.addWidget(self.update)
@@ -491,11 +496,18 @@ class Window(QWidget):
         self.raman.setTitle("Raman")
         self.oven = PowerCtrl("COM6")
         self.oven.setTitle("Oven")
+        self.create_func()
         layout = QGridLayout()
+        layout.addWidget(self.load_ion, 0, 0, 1, 1)
+        layout.addWidget(self.monitor,0, 1, 1, 1)
         layout.addWidget(self.dac, 1, 0, 1, 3)
         layout.addWidget(self.rf, 2, 0, 1, 1)
         layout.addWidget(self.raman, 2, 1, 1, 1)
         layout.addWidget(self.oven, 2, 2, 1, 1)
+        self.setLayout(layout)
+        self.setWindowTitle("Control Panel")
+    def create_func(self):
+        # One button for loading ions with some combined shutter controls
         self.load_ion = QPushButton("Start Load Ion")
         myfont = QFont()
         myfont.setBold(True)
@@ -504,10 +516,12 @@ class Window(QWidget):
         self.load_ion.setChecked(False)
         self.load_ion.setStyleSheet("background-color: red")
         self.load_ion.toggled.connect(self.loading)
-        layout.addWidget(self.load_ion, 0, 0, 1, 1)
-        self.setLayout(layout)
-        self.setWindowTitle("Control Panel")
-
+        self.monitor = QPushButton("Ion Status Monitor")
+        self.monitor.setFont(myfont)
+        self.monitor.setCheckable(True)
+        self.monitor.setChecked(False)
+        self.monitor.setStyleSheet("background-color: red")
+        self.monitor.toggled.connect(self.ion_status_feedback)
     def loading(self):
         self.dac.set_shutter(2, self.load_ion.isChecked())
         self.oven.set_switch(self.load_ion.isChecked())
@@ -519,7 +533,8 @@ class Window(QWidget):
         else:
             self.load_ion.setText("Start Load Ion")
             self.load_ion.setStyleSheet("background-color: red")
-            
+    def ion_status_feedback(self):
+        pass
     def center(self):
         frame_geometry = self.frameGeometry()
         screen = QApplication.desktop().screenNumber(QApplication.desktop().cursor().pos())
