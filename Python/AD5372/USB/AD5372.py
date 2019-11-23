@@ -10,6 +10,7 @@ from PyQt5.QtCore import pyqtSlot, pyqtSignal,  QSize, QRect
 import numpy as np
 import time
 import visa
+import qdarkstyle
 # import re # Pattern match
 # import serial
 # import pyrpl
@@ -85,7 +86,7 @@ class DAC(QWidget):
         self.data.setLayout(gridLayout)
     def create_compensation(self):
         '''This part is used to compensate the DC null to RF null'''
-        names = ["Horizontal", "Vertical", "Axial", "DC1","DC2", "RFs"]
+        names = ["Horizontal", "Vertical", "Axial", "DCs", "RFs"]
         self.compensationFrame = QGroupBox("Compensation Combinations: DC1 RF11 DC1-2 DC2-2")
         self.compensationFrame.setGeometry(10, 10, 950, 40)
         self.compensationFrame.setContentsMargins(1, 1, 1, 1)
@@ -118,12 +119,9 @@ class DAC(QWidget):
             for i in (1, 6):
                 self.channels[i].setValue(self.channels[i].value() + self.compensate[num][0].value())
         elif num == 3:
-            for i in range(5):
+            for i in range(10):
                 self.channels[i].setValue(self.channels[i].value() + self.compensate[num][0].value())
         elif num == 4:
-            for i in range(5,10):
-                self.channels[i].setValue(self.channels[i].value() + self.compensate[num][0].value())
-        elif num == 5:
             for i in (10, 11):
                 self.channels[i].setValue(self.channels[i].value() + self.compensate[num][0].value())
 
@@ -348,7 +346,7 @@ class RSCtrl(QGroupBox):
         self.device = RS(ip)
         self.freq = LVSpinBox()
         self.freq.setRange(0, 1000000000)
-        self.freq.setDecimals(1)
+        self.freq.setDecimals(0)
         self.freq.setValue(self.device.read_frequency())
         self.amplitude = LVSpinBox()
         self.amplitude.setRange(-80, 20)
@@ -403,7 +401,7 @@ class RSCtrl(QGroupBox):
 
 class Power:
     def __init__(self, COM, baudrate=9600):
-        rm = visa.ResourceManager()
+        rm = visa.ResourceManager("@py")
         self.device = rm.open_resource(COM, baud_rate=baudrate)
     def set_voltage(self, Vout):
         self.device.write('SOURCE:VOLTAGE ' + str(Vout))
@@ -494,12 +492,12 @@ class Window(QWidget):
         self.raman =RSCtrl("192.168.32.148")
         self.raman.set_upper(-4)
         self.raman.setTitle("Raman")
-        self.oven = PowerCtrl("COM6")
+        self.oven = PowerCtrl("ASRLCOM6::INSTR")
         self.oven.setTitle("Oven")
         self.create_func()
         layout = QGridLayout()
         layout.addWidget(self.load_ion, 0, 0, 1, 1)
-        layout.addWidget(self.monitor,0, 1, 1, 1)
+        layout.addWidget(self.monitor, 0, 1, 1, 1)
         layout.addWidget(self.dac, 1, 0, 1, 3)
         layout.addWidget(self.rf, 2, 0, 1, 1)
         layout.addWidget(self.raman, 2, 1, 1, 1)
@@ -513,9 +511,9 @@ class Window(QWidget):
         myfont.setBold(True)
         self.load_ion.setFont(myfont)
         self.load_ion.setCheckable(True)
+        self.load_ion.toggled.connect(self.loading)
         self.load_ion.setChecked(False)
         self.load_ion.setStyleSheet("background-color: red")
-        self.load_ion.toggled.connect(self.loading)
         self.monitor = QPushButton("Ion Status Monitor")
         self.monitor.setFont(myfont)
         self.monitor.setCheckable(True)
@@ -544,8 +542,9 @@ class Window(QWidget):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    app.setFont(QFont("Segoe UI", 10))
+    app.setFont(QFont("Vollkorn", 10))
     app.setStyle('Fusion')
+    # app.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
     ui = Window()
     ui.center()
     ui.show()
