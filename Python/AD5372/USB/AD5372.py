@@ -2,22 +2,20 @@
 
 import os
 import sys
-from PyQt5 import QtGui
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtCore import pyqtSlot, pyqtSignal,  QSize, QRect
+from PyQt5.QtCore import pyqtSlot, pyqtSignal, QSize, QRect
 import numpy as np
 import time
 import visa
-import qdarkstyle
+# import qdarkstyle
 # import re # Pattern match
 # import serial
 # import pyrpl
 #gacutil.exe /i CyUSB.dll
 from ctypes import *
-dll = cdll.LoadLibrary('AD5372.dll')
-dll.AD5372_Init()
+
 #import clr
 #sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 #clr.AddReference('AD5372')
@@ -25,6 +23,11 @@ dll.AD5372_Init()
 #AD5372.Init()
 #AD5372.DAC(0, 1)
 #AD5372.LDAC()
+myfont = QFont()
+myfont.setBold(True)
+# Open a resource manager of visa
+rm = visa.ResourceManager("@py")
+
 class LVSpinBox(QDoubleSpinBox):
     '''This class is a reimplemented double spinbox with the same function as LabView number control'''
     stepChanged = pyqtSignal()
@@ -45,12 +48,14 @@ class LVSpinBox(QDoubleSpinBox):
         self.editingFinished.connect(func)
         self.stepChanged.connect(func)
             
-class DAC(QWidget):
+class DAC(QGroupBox):
     '''The class DAC is a basic family for AD5732, which can be used to implement a shutter switch, a DC supply with \pm 10V, and a combination of multiple channnels'''
     dataFile = "data.dat"
     channelOrder = [1, 0, 3, 2, 5, 4, 7, 6, 9, 8, 11, 10, 13, 12, 15, 14, 17, 16, 19, 18, 21, 20, 23, 22, 25, 24, 27, 26, 29, 28, 31, 30]
+    dll = cdll.LoadLibrary('AD5372.dll')
     def __init__(self):
         super().__init__()
+        self.dll.AD5372_Open()
         self.createConfig()
         self.createChannels()
         self.create_compensation()
@@ -63,10 +68,10 @@ class DAC(QWidget):
     def createChannels(self):
         self.channels = [None]*32
         gridLayout = QGridLayout()
-        gridLayout.setVerticalSpacing(0)
         self.data = QGroupBox("Channels(DC1:1-5, DC2:6-10, RF1:11, RF2:12,Shutters:13-16)")
-        self.data.setGeometry(10, 10, 950, 250)
-        self.data.setContentsMargins(5, 5, 5, 5)
+        # self.data = QGroupBox()
+        # self.data.setGeometry(10, 10, 950, 250)
+        self.data.setContentsMargins(1, 1, 1, 1)
         # Data entries
         for i in range(32):
             self.channels[i] = LVSpinBox()
@@ -76,32 +81,44 @@ class DAC(QWidget):
             groupbox = QGroupBox()
             layout = QHBoxLayout()
             label = QLabel(str(i+1))
-            # label.setContentsMargins(1, 1, 1, 1)
             layout.addWidget(label, 0)
             layout.addWidget(self.channels[i], 1)
-            layout.setContentsMargins(2, 2, 1, 1)
+            layout.setContentsMargins(1, 1, 1, 1)
             # groupbox.setContentsMargins(10, 10, 10, 10)
             groupbox.setLayout(layout)
             gridLayout.addWidget(groupbox, i//8, i % 8, 1, 1)
+        # vspacer = QSpacerItem(QSizePolicy.Minimum, QSizePolicy.Expanding)
+        # gridLayout.addItem(vspacer, 3, 0, 1, -1)
+        # hspacer = QSpacerItem(QSizePolicy.Expanding, QSizePolicy.Minimum)
+        # gridLayout.addItem(hspacer, 0, 7, -1, 1)
+        gridLayout.setContentsMargins(0, 0, 0, 0)
+        gridLayout.setSpacing(0)
+        gridLayout.setVerticalSpacing(0)
         self.data.setLayout(gridLayout)
     def create_compensation(self):
         '''This part is used to compensate the DC null to RF null'''
         names = ["Horizontal", "Vertical", "Axial", "DCs", "RFs"]
         self.compensationFrame = QGroupBox("Compensation Combinations: DC1 RF11 DC1-2 DC2-2")
-        self.compensationFrame.setGeometry(10, 10, 950, 40)
+        # self.compensationFrame = QGroupBox()
+        # self.compensationFrame.setGeometry(10, 10, 950, 40)
         self.compensationFrame.setContentsMargins(1, 1, 1, 1)
         self.compensate = [[LVSpinBox(), QPushButton('GO')] for i in range(len(names))]
         layout = QHBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
         for i in range(len(self.compensate)):
             groupbox = QGroupBox()
-            # groupbox.setContentsMargins(1, 1, 1, 1)
+            # groupbox.setContentsMargins(0, 0, 0, 0)
             ly = QHBoxLayout()
             self.compensate[i][0].setRange(-1.0, 1.0)
             self.compensate[i][0].setDecimals(4)
             self.compensate[i][0].setSingleStep(0.0001)
-            ly.addWidget(QLabel(names[i]))
+            label = QLabel(names[i])
+            label.setFont(myfont)
+            ly.addWidget(label)
             ly.addWidget(self.compensate[i][0], 1)
+            # self.compensate[i][1].setFont(myfont)
             ly.addWidget(self.compensate[i][1], 0)
+            ly.setContentsMargins(0, 0, 0, 0)
             groupbox.setLayout(ly)
             layout.addWidget(groupbox)
         self.compensationFrame.setLayout(layout)
@@ -110,7 +127,7 @@ class DAC(QWidget):
         if num == 0:
             for i in range(5):
                 self.channels[i].setValue(self.channels[i].value() + self.compensate[num][0].value())
-                self.channels[10].setValue(self.channels[10].value() + self.compensate[num][0].value())
+            self.channels[10].setValue(self.channels[10].value() + self.compensate[num][0].value())
         elif num == 1:
             for i in range(5):
                 self.channels[i].setValue(self.channels[i].value() + self.compensate[num][0].value())
@@ -127,20 +144,18 @@ class DAC(QWidget):
 
     def createShutters(self):
         self.shutterFrame = QGroupBox("Shutters")
-        self.shutterFrame.setGeometry(10, 10, 950, 40)
         # self.shutterFrame.setContentsMargins(1, 1, 1, 1)
-        buttons = ["Flip Mirror", "Protection", "399", "935", "Unlock RF"]
+        buttons = ["PMT", "Protection", "399", "935", "Unlock RF"]
         self.shutterArray = [13, 14, 15, 16, 17]
         # nums = [13, 14, 15, 16]
         # self.shutterArray = [QSpinBox() for i in range(len(buttons))]
         self.shutters = [QPushButton(buttons[i]) for i in range(len(buttons))]
         layout = QHBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
         for i in range(len(buttons)):
             # make the button with a bool value
             self.shutters[i].setCheckable(True)
             self.shutters[i].setStyleSheet('background-color: red')
-            myfont = QFont()
-            myfont.setBold(True)
             self.shutters[i].setFont(myfont)
             # group = QGroupBox()
             # layoutT = QHBoxLayout()
@@ -151,19 +166,17 @@ class DAC(QWidget):
         self.shutterFrame.setLayout(layout)
 
     def createConfig(self):
-        self.pre = QGroupBox("Settings")
-        self.pre.setGeometry(10, 10, 950, 30)
-        # self.pre.setContentsMargins(5, 5, 2, 2)
-        myfont = QFont()
-        myfont.setBold(True)
-        self.update = QPushButton('Update')
+        self.pre = QGroupBox("AD5372")
+        # self.pre.setGeometry(10, 10, 950, 30)
+        # self.pre.setContentsMargins(1, 1, 1, 1)
+        self.update = QPushButton('Reset')
         self.update.setFont(myfont)
         self.load = QPushButton('Load')
         self.load.setFont(myfont)
         self.save = QPushButton("Save")
         self.save.setFont(myfont)
         hlayout = QHBoxLayout()
-        hlayout.setContentsMargins(5, 5, 1, 1)
+        hlayout.setContentsMargins(0, 0, 0, 0)
         hlayout.addWidget(self.update)
         hlayout.addWidget(self.load)
         hlayout.addWidget(self.save)
@@ -171,16 +184,17 @@ class DAC(QWidget):
     
     def setupUI(self):
         self.layout = QVBoxLayout()
-        self.layout.setContentsMargins(1, 1, 1, 1)
         self.layout.addWidget(self.pre)
         self.layout.addWidget(self.data)
         self.layout.addWidget(self.compensationFrame)
         self.layout.addWidget(self.shutterFrame)
-        self.layout.setContentsMargins(5, 5, 5, 5)
+        self.layout.setContentsMargins(0, 0, 0, 0)
+        self.layout.setSpacing(0)
         self.setLayout(self.layout)
-        self.setWindowTitle("AD5372")
+        self.setContentsMargins(1, 1, 1, 1)
+        # self.setWindowTitle("AD5372")
 
-        
+
 
     def setConnect(self):
         self.update.clicked.connect(self.reset)
@@ -217,12 +231,9 @@ class DAC(QWidget):
             if not data.size == 32:
                 print("data length is wrong!!!")
             for i in range(32):
+                self.channels[i].setValue(data[i])
                 if force_mode:
-                    self.channels[i].setValue(data[i])
                     self.set_voltage(self.channelOrder[i], data[i])
-                else:
-                    if not data[i] == self.channels[i].value():
-                        self.channels[i].setValue(data[i])
         else:
             np.savetxt(self.dataFile, np.zeros(32))
             self.reset()
@@ -235,7 +246,8 @@ class DAC(QWidget):
     def reset(self):
         for i in range(32):
             self.channels[i].setValue(0.0)
-        dll.AD5372_Reset()
+        self.dll.AD5372_Init()
+        self.dll.AD5372_Reset()
         
     def updateShutter(self, num):
         if abs(self.channels[self.shutterArray[num] - 1].value()) < 0.1:
@@ -260,19 +272,19 @@ class DAC(QWidget):
         if (abs(Vout) > 10.00001):
             print("Voltage over range!")
             return
-        dll.AD5372_DAC(channel, c_double(Vout))
-        dll.AD5372_LDAC()
+        self.dll.AD5372_DAC(channel, c_double(Vout))
+        self.dll.AD5372_LDAC()
 
 class RS:
     """Class used to send commands and acquire data from the Rohde & Schwarz SMA100A & SMB100A
-    Signal Generator using PyVisa.
+    Signal Generator using PyVisa. Frequency is in unit MHz.
     """
     def __init__(self, ip):
         """Class constructor. Here the socket connection to the instrument is initialized. The
         argument required, a string, is the IP adress of the instrument."""
-        rm = visa.ResourceManager("@py")
-        sig_gen_ip = ip
-        self.sig_gen_socket = rm.open_resource("TCPIP::" + sig_gen_ip + "::inst0::INSTR")
+        # rm = visa.ResourceManager("@py")
+        self.sig_gen_ip = ip
+        self.sig_gen_socket = rm.open_resource("TCPIP::" + ip + "::inst0::INSTR")
 
     def query(self, text):
         """Return the output of the query on text"""
@@ -284,7 +296,7 @@ class RS:
 
     def set_frequency(self, freq):
         """set the frequency value"""
-        self.sig_gen_socket.write("SOURCE:FREQUENCY:CW " + str(freq))
+        self.sig_gen_socket.write("SOURCE:FREQUENCY:CW " + str(freq*10**6))
         
     def set_amplitude(self, level):
         """set the amplitude value"""
@@ -297,7 +309,7 @@ class RS:
             self.sig_gen_socket.write("OUTPUT:STATE OFF")
 
     def read_frequency(self):
-        return float(self.query("SOURCE:FREQUENCY:CW?"))
+        return (float(self.query("SOURCE:FREQUENCY:CW?"))/10**6)
     
     def read_amplitude(self):
         return float(self.query("SOURCE:POWER:LEVEL:IMMEDIATE:AMPLITUDE?"))
@@ -339,22 +351,22 @@ class RS:
     def close_connection(self):
        """Close the socket connection to the instrument."""
        self.sig_gen_socket.close()
+    def __del__(self):
+        self.sig_gen_socket.close()
 
 class RSCtrl(QGroupBox):
     def __init__(self, ip):
         super().__init__()
         self.device = RS(ip)
         self.freq = LVSpinBox()
-        self.freq.setRange(0, 1000000000)
-        self.freq.setDecimals(0)
+        self.freq.setRange(0, 1000)
+        self.freq.setDecimals(6)
         self.freq.setValue(self.device.read_frequency())
         self.amplitude = LVSpinBox()
         self.amplitude.setRange(-80, 20)
         self.amplitude.setDecimals(2)
         self.amplitude.setValue(self.device.read_amplitude())
         self.switch = QPushButton("OFF")
-        myfont = QFont()
-        myfont.setBold(True)
         self.switch.setFont(myfont)
         self.switch.setCheckable(True)
         if self.device.read_status():
@@ -369,8 +381,8 @@ class RSCtrl(QGroupBox):
         self.create_UI()
 
         
-    def set_upper(self, upper):
-        self.amplitude.setMaximum(upper)
+    def setRange(self, low=-80, upper=20):
+        self.amplitude.setRange(low, upper)
     def create_UI(self):
         layout = QHBoxLayout()
         layout.setContentsMargins(1, 1, 1, 1)
@@ -401,7 +413,8 @@ class RSCtrl(QGroupBox):
 
 class Power:
     def __init__(self, COM, baudrate=9600):
-        rm = visa.ResourceManager("@py")
+        # rm = visa.ResourceManager("@py")
+        # print(rm.list_resources())
         self.device = rm.open_resource(COM, baud_rate=baudrate)
     def set_voltage(self, Vout):
         self.device.write('SOURCE:VOLTAGE ' + str(Vout))
@@ -425,21 +438,21 @@ class Power:
     def close_connection(self):
        """Close the connection to the instrument."""
        self.device.close()
+    def __del__(self):
+        self.device.close()
 class PowerCtrl(QGroupBox):
     def __init__(self, COM, baudrate=9600):
         super().__init__()
         self.device = Power(COM, baudrate)
         self.voltage = LVSpinBox()
         self.voltage.setRange(0, 2)
-        self.voltage.setSingleStep(0.01)
+        self.voltage.setDecimals(2)
         self.voltage.setValue(self.device.read_voltage())
         self.current = LVSpinBox()
         self.current.setRange(0, 2.2)
-        self.current.setSingleStep(0.01)
+        self.current.setDecimals(2)
         self.current.setValue(self.device.read_current())
         self.switch = QPushButton("OFF")
-        myfont = QFont()
-        myfont.setBold(True)
         self.switch.setFont(myfont)
         self.switch.setCheckable(True)
         if self.device.read_status():
@@ -482,18 +495,144 @@ class PowerCtrl(QGroupBox):
         self.current.valueChanged.connect(self.set_current)
         self.switch.toggled.connect(self.set_output)
 
+class AD5791:
+    """This class is designed to control AD5791, and I have set the LDAC at the Low level which enable Synchronous DAC Update 
+ at the rising edge of SYNC."""
+    def __init__(self, ser="BSPT002144", dll="usb2uis.dll"):
+        self.VREF = 10.0
+        self.serial_num = ser
+        self.dll = cdll.LoadLibrary(dll)
+        # Close the connections if already exist
+        self.dll.USBIO_CloseDeviceByNumber(ser)
+        self.device_num = self.dll.USBIO_OpenDeviceByNumber(ser)
+        if self.device_num == 0xFF:
+            print("No USB2UIS can be connected!")
+            exit()
+        self.SPI_Init()
+        self.device_start()
+        
+    def SPI_Init(self, frequency=8, mode=1, timeout_read=100, timeout_write=100):
+        """SPI settings, frequency upto 8 selections, representing 200kHz 400kHz, 600kHz, 800kHz, 1MHz, 2MHz, 4MHz, 6MHz and 12MHz. Mode is specified to the clock signal, and the timeout is used to specify the timeout of read and write, occupying 16-bit data respectively"""
+        self.dll.USBIO_SPISetConfig(self.device_num, (mode<<4)+frequency, (timeout_write<<16)+timeout_read)
+
+    def data(self, Vout):
+        return int((Vout+self.VREF)*(2**20-1)/2/self.VREF)
+    
+    def device_start(self):
+        """Set the control register to enable the dac into a normal operation mode and offset code style"""
+        self.dll.USBIO_SPIWrite(self.device_num, None, 0, (0x200012).to_bytes(3, byteorder="big"), 3)
+    def set_voltage(self, Vout):
+        """The Vout set to the DAC should exceed \pm 10V"""
+        if abs(Vout)>10.0000000001:
+            print("Voltage over range!")
+        else:
+            self.dll.USBIO_SPIWrite(self.device_num, None, 0, ((0x01<<20) + self.data(Vout)).to_bytes(3, byteorder="big"), 3)
+    def read_voltage(self):
+        out = b'\x00'*3
+        self.dll.USBIO_SPIWrite(self.device_num, None, 0, (0x900000).to_bytes(3, byteorder="big"), 3)
+        self.dll.USBIO_SPIRead(self.device_num, None, 0, out, 3)
+        data = int.from_bytes(out, byteorder="big")
+        data = data&0x0FFFFF
+        return data*2*self.VREF/(2**20 - 1) - self.VREF
+
+    def LDAC(self):
+        self.dll.USBIO_SPIWrite(self.device_num, None, 0, (0x400001).to_bytes(3, byteorder="big"), 3)
+    def clear(self):
+        self.dll.USBIO_SPIWrite(self.device_num, None, 0, (0x400002).to_bytes(3, byteorder="big"), 3)
+    def reset(self):
+        self.dll.USBIO_SPIWrite(self.device_num, None, 0, (0x400004).to_bytes(3, byteorder="big"), 3)
+    def disable_output(self):
+        self.dll.USBIO_SPIWrite(self.device_num, None, 0, (0x20001E).to_bytes(3, byteorder="big"), 3)
+    def __del__(self):
+        self.dll.USBIO_CloseDeviceByNumber(self.serial_num)
+
+class AD5791Ctrl(QGroupBox):
+    def __init__(self, ser="BSPT002144", dll="usb2uis.dll"):
+        super().__init__()
+        self.device = AD5791(ser, dll)
+        self.value = LVSpinBox()
+        self.value.setDecimals(3)
+        self.value.setValue(self.device.read_voltage())
+        self.switch = QPushButton("ON")
+        self.switch.setCheckable(True)
+        self.switch.setChecked(True)
+        self.switch.setStyleSheet("background-color: green")
+        self.switch.setFont(myfont)
+        self.reset = QPushButton("Reset")
+        self.reset.setFont(myfont)
+        self.level = QPushButton("High")
+        self.level.setCheckable(True)
+        self.level.setChecked(True)
+        self.level.setFont(myfont)
+        self.level.setStyleSheet("background-color: red")
+        layout = QHBoxLayout()
+        layout.addWidget(QLabel("Vref"), 0)
+        layout.addWidget(self.value, 1)
+        layout.addWidget(self.level, 1)
+        layout.addWidget(self.switch, 1)
+        layout.addWidget(self.reset, 1)
+        self.setLayout(layout)
+        self.set_connect()
+        self.level.setChecked(False)
+        
+
+    def setRange(self, low=0.5, upper=2.0):
+        self.value.setRange(low, upper)
+
+    def set_connect(self):
+        self.value.valueChanged.connect(self.set_voltage)
+        self.switch.toggled.connect(self.set_switch)
+        self.reset.clicked.connect(self.resetAll)
+        self.level.toggled.connect(self.changeLevel)
+    def set_voltage(self):
+        self.device.set_voltage(self.value.value())
+    def set_switch(self):
+        if self.switch.isChecked():
+            self.device.device_start()
+            self.level.setChecked(False)
+            self.switch.setStyleSheet("background-color: green")
+            self.switch.setText("ON")
+        else:
+            self.device.disable_output()
+            self.switch.setStyleSheet("background-color: red")
+            self.switch.setText("OFF")
+    def resetAll(self):
+        self.device.reset()
+        self.switch.setChecked(False)
+        self.value.setValue(self.device.read_voltage())
+    def changeLevel(self):
+        if self.level.isChecked():
+            self.value.setValue(1.4)
+            self.level.setStyleSheet("background-color: green")
+            self.level.setText("High")
+        else:
+            self.value.setValue(0.6)
+            self.level.setStyleSheet("background-color: red")
+            self.level.setText("Low")
+    def setHighLevel(self, state):
+        if state:
+            self.level.setChecked(True)
+        else:
+            self.level.setChecked(False)
+
+
 class Window(QWidget):
     def __init__(self):
         super().__init__()
+        self.setWindowIcon(QIcon("control-panel.png"))
+        self.setWindowIconText("Control Panel")
         self.dac = DAC()
         self.rf = RSCtrl("192.168.32.145")
-        self.rf.set_upper(3)
+        self.rf.setRange(-80, 2)
         self.rf.setTitle("RF")
         self.raman =RSCtrl("192.168.32.148")
-        self.raman.set_upper(-4)
+        self.raman.setRange(-80, -11.5)
         self.raman.setTitle("Raman")
         self.oven = PowerCtrl("ASRLCOM6::INSTR")
         self.oven.setTitle("Oven")
+        self.vref = AD5791Ctrl()
+        self.vref.setRange(0.5, 2.0)
+        self.vref.setTitle("RF Reference")
         self.create_func()
         layout = QGridLayout()
         layout.addWidget(self.load_ion, 0, 0, 1, 1)
@@ -502,37 +641,69 @@ class Window(QWidget):
         layout.addWidget(self.rf, 2, 0, 1, 1)
         layout.addWidget(self.raman, 2, 1, 1, 1)
         layout.addWidget(self.oven, 2, 2, 1, 1)
+        layout.addWidget(self.vref, 3, 0, 1, 1)
+        self.setContentsMargins(1, 1, 1, 1)
+        vspacer = QSpacerItem(QSizePolicy.Minimum, QSizePolicy.Expanding)
+        layout.addItem(vspacer, 3, 0, 1, -1)
+        hspacer = QSpacerItem(QSizePolicy.Expanding, QSizePolicy.Minimum)
+        layout.addItem(hspacer, 0, 2, -1, 1)
         self.setLayout(layout)
         self.setWindowTitle("Control Panel")
+        
+
     def create_func(self):
         # One button for loading ions with some combined shutter controls
-        self.load_ion = QPushButton("Start Load Ion")
-        myfont = QFont()
-        myfont.setBold(True)
+        self.load_ion = QPushButton("Start Load Ions")
         self.load_ion.setFont(myfont)
         self.load_ion.setCheckable(True)
         self.load_ion.toggled.connect(self.loading)
         self.load_ion.setChecked(False)
         self.load_ion.setStyleSheet("background-color: red")
-        self.monitor = QPushButton("Ion Status Monitor")
+        self.monitor = QPushButton("Drive Ions Back")
         self.monitor.setFont(myfont)
         self.monitor.setCheckable(True)
         self.monitor.setChecked(False)
         self.monitor.setStyleSheet("background-color: red")
         self.monitor.toggled.connect(self.ion_status_feedback)
+
     def loading(self):
-        self.dac.set_shutter(2, self.load_ion.isChecked())
-        self.oven.set_switch(self.load_ion.isChecked())
         if self.load_ion.isChecked():
+            self.dac.set_shutter(2, True)
+            self.oven.set_switch(True)
             # Shine the protection beam when loading ions, but won't shut it down when completing loading
-            self.dac.set_shutter(1, True)
-            self.load_ion.setText("Loading Ion")
+            # One way to set the low RF
+            # self.dac.set_shutter(4, True) # Turn the RF to the low level
+            # The other way to set low RF
+            self.dac.set_shutter(4, False)
+            self.vref.setHighLevel(False)
+            self.dac.set_shutter(1, True) #Turn on the protection beam
+            self.dac.set_shutter(3, True) # keep 935 on just in case
+            self.load_ion.setText("Loading Ions")
             self.load_ion.setStyleSheet("background-color: green")
         else:
-            self.load_ion.setText("Start Load Ion")
+            self.dac.set_shutter(2, False)
+            self.oven.set_switch(False)
+            self.load_ion.setText("Start Load Ions")
             self.load_ion.setStyleSheet("background-color: red")
+
     def ion_status_feedback(self):
-        pass
+        if self.monitor.isChecked():
+            self.dac.set_shutter(1, True)
+            # One way to switch the level of RF by closing the RF switch
+            # self.dac.set_shutter(4, True)
+            # The other way to switch the level of RF by changing the setpoint
+            self.dac.set_shutter(4, False) # Keep the RF stabilization on
+            self.vref.setHighLevel(False)
+            self.monitor.setStyleSheet("background-color: green")
+            self.monitor.setText("Ions Coming Back")
+        else:
+            self.dac.set_shutter(1, False)
+            # One way to switch the level of RF by closing the RF switch
+            # self.dac.set_shutter(4, False)
+            # The other way to switch the level of RF by changing the setpoint
+            self.vref.setHighLevel(True)
+            self.monitor.setStyleSheet("background-color: red")
+            self.monitor.setText("Drive Ions Back")
     def center(self):
         frame_geometry = self.frameGeometry()
         screen = QApplication.desktop().screenNumber(QApplication.desktop().cursor().pos())
@@ -541,6 +712,8 @@ class Window(QWidget):
         self.move(frame_geometry.topLeft())
 
 if __name__ == "__main__":
+    myappid = u'PyControl' # arbitrary string
+    windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
     app = QApplication(sys.argv)
     app.setFont(QFont("Vollkorn", 10))
     app.setStyle('Fusion')
