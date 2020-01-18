@@ -90,11 +90,12 @@ class Axis(QGroupBox):
         self.setTitle(name)
         self.axis = axis
         self.target = LVSpinBox()
-        self.target.setDecimals(4)
+        self.target.setDecimals(5)
         self.target.setRange(-13, 13)
         self.actual = LVSpinBox()
-        self.actual.setDecimals(4)
+        self.actual.setDecimals(5)
         self.actual.setRange(-13, 13)
+        self.target.setReadOnly(True)
         self.actual.setReadOnly(True)
         position = self.device.getpos(axis)
         self.target.setValue(position)
@@ -125,17 +126,16 @@ class Axis(QGroupBox):
         self.setConnect()
 
     def setPos(self):
-        if self.motor.isChecked():
-            position = self.device.setpos(self.target.value(), self.axis)
-            self.actual.setValue(position)
-        else:
-            self.target.setValue(self.actual.value())
+        position = self.device.setpos(self.target.value(), self.axis)
+        self.actual.setValue(position)
+
 
     def stopMotion(self):
         self.device.stop(self.axis)
 
     def readPos(self):
         position = self.device.getpos(self.axis)
+        self.target.setValue(position)
         self.actual.setValue(position)
 
     def setMotor(self):
@@ -143,10 +143,12 @@ class Axis(QGroupBox):
             self.device.motor(self.axis, True)
             self.motor.setText("Motor On")
             self.motor.setStyleSheet("background-color: green")
+            self.target.setReadOnly(False)
         else:
             self.device.motor(self.axis, False)
             self.motor.setText("Motor Off")
             self.motor.setStyleSheet("background-color: red")
+            self.target.setReadOnly(True)
 
     def setConnect(self):
         self.target.valueChanged.connect(self.setPos)

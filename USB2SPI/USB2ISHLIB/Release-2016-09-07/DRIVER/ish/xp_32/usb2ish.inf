@@ -1,0 +1,118 @@
+;/*++
+;
+;Copyright (c) Microsoft Corporation.  All rights reserved.
+;
+;   THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY
+;   KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+;   IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR
+;   PURPOSE.
+;
+;Module Name:
+;
+;    USBSamp.INF
+;
+;Abstract:
+;    Installation inf for the Intel 82930 USB Test Board
+;
+;--*/
+
+[Version]
+Signature="$WINDOWS NT$"
+Class=USB
+ClassGuid={36fc9e60-c465-11cf-8056-444553540000}
+Provider=%MSFT%
+DriverVer=09/26/2013,6.1.7600.16385
+CatalogFile=USB2ish.cat
+
+
+; ================= Class section =====================
+
+[ClassInstall32]
+Addreg=USBishClassReg     
+
+[USBishClassReg]
+HKR,,,0,%ClassName%
+HKR,,Icon,,-5
+
+[DestinationDirs]
+DefaultDestDir = 12
+
+; ================= Device section =====================
+
+[Manufacturer]
+%MfgName%=Microsoft,NTx86
+
+; For Win2K
+[Microsoft]
+%USB\VID_F134&PID_8001.DeviceDesc%=usb2ish.Dev, USB\VID_F134&PID_8001    ; OSR USB-FX
+%USB\VID_045E&PID_930A.DeviceDesc%=usb2ish.Dev, USB\VID_045E&PID_930A   ; Intel 82930
+
+; For XP and later
+[Microsoft.NTx86]
+%USB\VID_F134&PID_8001.DeviceDesc%=usb2ish.Dev, USB\VID_F134&PID_8001    ; OSR USB-FX
+%USB\VID_045E&PID_930A.DeviceDesc%=usb2ish.Dev, USB\VID_045E&PID_930A   ; Intel 82930
+
+
+[usb2ish.Dev.NT]
+CopyFiles=usb2ish.Files.Ext
+
+[usb2ish.Dev.NT.Services]
+Addservice = usb2ish, 0x00000002, usb2ish.AddService
+
+[usb2ish.AddService]
+DisplayName    = %usb2ish.SvcDesc%
+ServiceType    = 1                  ; SERVICE_KERNEL_DRIVER
+StartType      = 3                  ; SERVICE_DEMAND_START
+ErrorControl   = 1                  ; SERVICE_ERROR_NORMAL
+ServiceBinary  = %10%\System32\Drivers\usb2ish.sys
+AddReg         = usb2ish.AddReg
+LoadOrderGroup = Base
+
+[usb2ish.AddReg]
+HKR,"Parameters","MaximumTransferSize",0x10001,65536
+HKR,"Parameters","DebugLevel",0x10001,2
+
+[usb2ish.Files.Ext]
+usb2ish.sys
+
+[SourceDisksNames]
+1=%Disk_Description%,,,
+
+[SourceDisksFiles]
+usb2ish.sys = 1
+
+;-------------- WDF Coinstaller installation
+[DestinationDirs]
+CoInstaller_CopyFiles = 11
+
+[usb2ish.Dev.NT.CoInstallers]
+AddReg=CoInstaller_AddReg
+CopyFiles=CoInstaller_CopyFiles
+
+[CoInstaller_CopyFiles]
+WdfCoInstaller01009.dll
+
+[SourceDisksFiles]
+WdfCoInstaller01009.dll=1 ; make sure the number matches with SourceDisksNames
+
+[CoInstaller_AddReg]
+HKR,,CoInstallers32,0x00010000, "WdfCoInstaller01009.dll,WdfCoInstaller"
+
+[usb2ish.Dev.NT.Wdf]
+KmdfService = usb2ish, usbsamp_wdfsect
+
+[usbsamp_wdfsect]
+KmdfLibraryVersion = 1.9
+
+;---------------------------------------------------------------;
+
+[Strings]
+MSFT            = "Microsoft"
+MfgName         = "OnEasy Corporation"
+Disk_Description= "usb2ish Installation Disk"
+usb2ish.SvcDesc = "USB2ish Device"
+ClassName       = "USBish Device"
+USB\VID_F134&PID_8001.DeviceDesc="USB2ish Device"
+USB\VID_045E&PID_930A.DeviceDesc="USB2ish Device"
+
+
