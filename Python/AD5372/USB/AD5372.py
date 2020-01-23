@@ -57,6 +57,7 @@ class DAC(QGroupBox):
     channelOrder = [1, 0, 3, 2, 5, 4, 7, 6, 9, 8, 11, 10, 13, 12, 15,
                     14, 17, 16, 19, 18, 21, 20, 23, 22, 25, 24, 27, 26, 29, 28, 31, 30]
     dll = cdll.LoadLibrary('AD5372.dll')
+    dataNum = 32
 
     def __init__(self):
         super().__init__()
@@ -70,17 +71,13 @@ class DAC(QGroupBox):
         self.loadData(True)
 
     def createChannels(self):
-        self.channels = [None]*32
+        self.channels = [LVSpinBox()]*self.dataNum
         gridLayout = QGridLayout()
         self.data = QGroupBox(
             "Channels(DC1:1-5, DC2:6-10, RF1:11, RF2:12,Shutters:13-16)")
-        # self.data = QGroupBox()
-        # self.data.setGeometry(10, 10, 950, 250)
         self.data.setContentsMargins(1, 1, 1, 1)
         # Data entries
-        for i in range(32):
-            self.channels[i] = LVSpinBox()
-            # self.channels[i].setGeometry(1, 1, 70, 20)
+        for i in range(self.dataNum):
             self.channels[i].setDecimals(4)
             self.channels[i].setRange(-10.0, 10.0)
             groupbox = QGroupBox()
@@ -89,7 +86,6 @@ class DAC(QGroupBox):
             layout.addWidget(label, 0)
             layout.addWidget(self.channels[i], 1)
             layout.setContentsMargins(1, 1, 1, 1)
-            # groupbox.setContentsMargins(10, 10, 10, 10)
             groupbox.setLayout(layout)
             gridLayout.addWidget(groupbox, i//8, i % 8, 1, 1)
         # vspacer = QSpacerItem(QSizePolicy.Minimum, QSizePolicy.Expanding)
@@ -106,11 +102,8 @@ class DAC(QGroupBox):
         names = ["Horizontal", "Vertical", "Axial", "DC1", "DC2", "RFs", "All"]
         self.compensationFrame = QGroupBox(
             "Compensation Combinations: DC1 RF11 DC1-2 DC2-2")
-        # self.compensationFrame = QGroupBox()
-        # self.compensationFrame.setGeometry(10, 10, 950, 40)
         self.compensationFrame.setContentsMargins(1, 1, 1, 1)
-        self.compensate = [[LVSpinBox(), QPushButton('GO')]
-                           for i in range(len(names))]
+        self.compensate = [[LVSpinBox(), QPushButton('GO')]]*self.dataNum
         layout = QGridLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
@@ -127,7 +120,6 @@ class DAC(QGroupBox):
         layout.addWidget(groupbox, 0, 0, 1, 1)
         for i in range(len(self.compensate)):
             groupbox = QGroupBox()
-            # groupbox.setContentsMargins(0, 0, 0, 0)
             ly = QHBoxLayout()
             self.compensate[i][0].setRange(-1.0, 1.0)
             self.compensate[i][0].setDecimals(4)
@@ -136,7 +128,6 @@ class DAC(QGroupBox):
             label.setFont(myfont)
             ly.addWidget(label)
             ly.addWidget(self.compensate[i][0], 1)
-            # self.compensate[i][1].setFont(myfont)
             ly.addWidget(self.compensate[i][1], 1)
             ly.setContentsMargins(0, 0, 0, 0)
             groupbox.setLayout(ly)
@@ -179,11 +170,8 @@ class DAC(QGroupBox):
 
     def createShutters(self):
         self.shutterFrame = QGroupBox("Shutters")
-        # self.shutterFrame.setContentsMargins(1, 1, 1, 1)
         buttons = ["PMT", "Protection", "399", "935", "Unlock RF", "Trap RF"]
         self.shutterArray = [13, 14, 15, 16, 17, 19]
-        # nums = [13, 14, 15, 16]
-        # self.shutterArray = [QSpinBox() for i in range(len(buttons))]
         self.shutters = [QPushButton(buttons[i]) for i in range(len(buttons))]
         layout = QHBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
@@ -193,18 +181,11 @@ class DAC(QGroupBox):
             self.shutters[i].setStyleSheet('background-color: red')
             self.shutters[i].setFont(myfont)
             self.channels[self.shutterArray[i]-1].setReadOnly(True)
-            # group = QGroupBox()
-            # layoutT = QHBoxLayout()
-            # layoutT.addWidget(QLabel(str(self.shutterArray[i])), 0)
-            # layoutT.addWidget(self.shutters[i], 1)
-            # group.setLayout(layoutT)
             layout.addWidget(self.shutters[i], 1)
         self.shutterFrame.setLayout(layout)
 
     def createConfig(self):
         self.pre = QGroupBox("AD5372")
-        # self.pre.setGeometry(10, 10, 950, 30)
-        # self.pre.setContentsMargins(1, 1, 1, 1)
         self.update = QPushButton('Reset Board')
         self.update.setFont(myfont)
         self.load = QPushButton('Load Data')
@@ -234,14 +215,12 @@ class DAC(QGroupBox):
         self.update.clicked.connect(self.reset)
         self.load.clicked.connect(self.loadData)
         self.save.clicked.connect(self.saveData)
-        for i in range(32):
+        for i in range(self.dataNum):
             self.channels[i].valueChanged.connect(
                 lambda chk, i=i: self.dataUpdate(i))
         for i in range(len(self.shutters)):
             self.shutters[i].toggled.connect(
                 lambda chk, key=i: self.switch(key))
-        # for i in range(len(self.shutters)):
-        #     self.channels[self.shutterArray[i]-1].valueChanged.connect(lambda chk, key=i: self.updateShutter(key))
         for i in range(len(self.compensate)):
             self.compensate[i][1].clicked.connect(
                 lambda chk, key=i: self.applyComp(key))
@@ -265,24 +244,24 @@ class DAC(QGroupBox):
         exists = os.path.isfile(self.dataFile)
         if exists:
             data = np.loadtxt(self.dataFile)
-            if not data.size == 32:
+            if not data.size == self.dataNum:
                 print("data length is wrong!!!")
-            for i in range(32):
+            for i in range(self.dataNum):
                 self.channels[i].setValue(data[i])
                 if force_mode:
                     self.set_voltage(self.channelOrder[i], data[i])
             for i in range(len(self.shutters)):
                 self.updateShutter(i)
         else:
-            np.savetxt(self.dataFile, np.zeros(32))
+            np.savetxt(self.dataFile, np.zeros(self.dataNum))
             self.reset()
 
     def saveData(self):
-        data = np.array([self.channels[i].value() for i in range(32)])
+        data = np.array([self.channels[i].value() for i in range(self.dataNum)])
         np.savetxt(self.dataFile, data)
 
     def reset(self):
-        for i in range(32):
+        for i in range(self.dataNum):
             self.channels[i].setValue(0.0)
         self.dll.AD5372_Init()
         self.dll.AD5372_Reset()
@@ -312,6 +291,7 @@ class DAC(QGroupBox):
             return
         self.dll.AD5372_DAC(channel, c_double(Vout))
         self.dll.AD5372_LDAC()
+
 
 
 class RS:
