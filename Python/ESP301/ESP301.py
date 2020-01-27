@@ -5,7 +5,10 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import pyqtSlot, pyqtSignal, QSize, QRect
 from ctypes import *
 import sys
-
+'''
+TODO:
+set the backlash compensation algorithm and use the SM command to save the settings to the non-violating memory
+'''
 class LVSpinBox(QDoubleSpinBox):
     stepChanged = pyqtSignal()
 
@@ -81,6 +84,9 @@ class esp:
         for i in range(1, 4):
             self.motor(i, False)
         self.dev.close()
+
+    def __del__(self):
+        self.close()
 
 
 class Axis(QGroupBox):
