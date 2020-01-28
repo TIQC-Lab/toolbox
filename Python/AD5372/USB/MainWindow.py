@@ -14,16 +14,11 @@ from TopticaLaser import TopticaLaser as Laser
 # import re # Pattern match
 # import serial
 # import pyrpl
-# gacutil.exe /i CyUSB.dll
-from ctypes import *
 
-#import clr
-# sys.path.append(os.path.dirname(os.path.realpath(__file__)))
-# clr.AddReference('AD5372')
-#from ADI import AD5372
-# AD5372.Init()
-#AD5372.DAC(0, 1)
-# AD5372.LDAC()
+from ctypes import *
+import pcie6738
+
+
 myfont = QFont()
 myfont.setBold(True)
 # Open a resource manager of visa
@@ -51,7 +46,7 @@ class LVSpinBox(QDoubleSpinBox):
         self.stepChanged.connect(func)
 
 
-class DAC(QGroupBox):
+class AD5372Ctrl(QGroupBox):
     '''The class DAC is a basic family for AD5732, which can be used to implement a shutter switch, a DC supply with \pm 10V, and a combination of multiple channnels'''
     dataFile = "data.dat"
     channelOrder = [1, 0, 3, 2, 5, 4, 7, 6, 9, 8, 11, 10, 13, 12, 15,
@@ -97,76 +92,76 @@ class DAC(QGroupBox):
         gridLayout.setVerticalSpacing(0)
         self.data.setLayout(gridLayout)
 
-    def create_compensation(self):
-        '''This part is used to compensate the DC null to RF null'''
-        names = ["Horizontal", "Vertical", "Axial", "DC1", "DC2", "RFs", "All"]
-        self.compensationFrame = QGroupBox(
-            "Compensation Combinations: DC1 RF11 DC1-2 DC2-2")
-        self.compensationFrame.setContentsMargins(1, 1, 1, 1)
-        self.compensate = [[LVSpinBox(), QPushButton('GO')]]*self.dataNum
-        layout = QGridLayout()
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(0)
-        self.ratio = LVSpinBox()
-        self.ratio.setDecimals(2)
-        self.ratio.setRange(0, 50)
-        self.ratio.setValue(1)
-        groupbox = QGroupBox()
-        ly = QHBoxLayout()
-        ly.setContentsMargins(0, 0, 0, 0)
-        ly.addWidget(QLabel("DC1:RF1= "))
-        ly.addWidget(self.ratio, 1)
-        groupbox.setLayout(ly)
-        layout.addWidget(groupbox, 0, 0, 1, 1)
-        for i in range(len(self.compensate)):
-            groupbox = QGroupBox()
-            ly = QHBoxLayout()
-            self.compensate[i][0].setRange(-1.0, 1.0)
-            self.compensate[i][0].setDecimals(4)
-            self.compensate[i][0].setSingleStep(0.0001)
-            label = QLabel(names[i])
-            label.setFont(myfont)
-            ly.addWidget(label)
-            ly.addWidget(self.compensate[i][0], 1)
-            ly.addWidget(self.compensate[i][1], 1)
-            ly.setContentsMargins(0, 0, 0, 0)
-            groupbox.setLayout(ly)
-            layout.addWidget(groupbox, (i+1)//4, (i+1) % 4, 1, 1)
-        self.compensationFrame.setLayout(layout)
+    # def create_compensation(self):
+    #     '''This part is used to compensate the DC null to RF null'''
+    #     names = ["Horizontal", "Vertical", "Axial", "DC1", "DC2", "RFs", "All"]
+    #     self.compensationFrame = QGroupBox(
+    #         "Compensation Combinations: DC1 RF11 DC1-2 DC2-2")
+    #     self.compensationFrame.setContentsMargins(1, 1, 1, 1)
+    #     self.compensate = [[LVSpinBox(), QPushButton('GO')]]*self.dataNum
+    #     layout = QGridLayout()
+    #     layout.setContentsMargins(0, 0, 0, 0)
+    #     layout.setSpacing(0)
+    #     self.ratio = LVSpinBox()
+    #     self.ratio.setDecimals(2)
+    #     self.ratio.setRange(0, 50)
+    #     self.ratio.setValue(1)
+    #     groupbox = QGroupBox()
+    #     ly = QHBoxLayout()
+    #     ly.setContentsMargins(0, 0, 0, 0)
+    #     ly.addWidget(QLabel("DC1:RF1= "))
+    #     ly.addWidget(self.ratio, 1)
+    #     groupbox.setLayout(ly)
+    #     layout.addWidget(groupbox, 0, 0, 1, 1)
+    #     for i in range(len(self.compensate)):
+    #         groupbox = QGroupBox()
+    #         ly = QHBoxLayout()
+    #         self.compensate[i][0].setRange(-1.0, 1.0)
+    #         self.compensate[i][0].setDecimals(4)
+    #         self.compensate[i][0].setSingleStep(0.0001)
+    #         label = QLabel(names[i])
+    #         label.setFont(myfont)
+    #         ly.addWidget(label)
+    #         ly.addWidget(self.compensate[i][0], 1)
+    #         ly.addWidget(self.compensate[i][1], 1)
+    #         ly.setContentsMargins(0, 0, 0, 0)
+    #         groupbox.setLayout(ly)
+    #         layout.addWidget(groupbox, (i+1)//4, (i+1) % 4, 1, 1)
+    #     self.compensationFrame.setLayout(layout)
 
-    def applyComp(self, num):
-        if num == 0:
-            for i in range(5):
-                self.channels[i].setValue(
-                    self.channels[i].value() + self.compensate[num][0].value())
-            self.channels[10].setValue(self.channels[10].value(
-            ) + self.ratio.value()*self.compensate[num][0].value())
-        elif num == 1:
-            for i in range(5):
-                self.channels[i].setValue(
-                    self.channels[i].value() + self.compensate[num][0].value())
-            self.channels[10].setValue(self.channels[10].value(
-            ) - self.ratio.value()*self.compensate[num][0].value())
-        elif num == 2:
-            for i in (0, 5):
-                self.channels[i].setValue(
-                    self.channels[i].value() + self.compensate[num][0].value())
-        elif num == 3:
-            for i in range(5):
-                self.channels[i].setValue(
-                    self.channels[i].value() + self.compensate[num][0].value())
-        elif num == 4:
-            for i in range(5, 10):
-                self.channels[i].setValue(
-                    self.channels[i].value() + self.compensate[num][0].value())
-        elif num == 5:
-            for i in (10, 11):
-                self.channels[i].setValue(
-                    self.channels[i].value() + self.compensate[num][0].value())
-        elif num == 6:
-            for i in range(12):
-                self.channels[i].setValue(
-                    self.channels[i].value() + self.compensate[num][0].value())
+    # def applyComp(self, num):
+    #     if num == 0:
+    #         for i in range(5):
+    #             self.channels[i].setValue(
+    #                 self.channels[i].value() + self.compensate[num][0].value())
+    #         self.channels[10].setValue(self.channels[10].value(
+    #         ) + self.ratio.value()*self.compensate[num][0].value())
+    #     elif num == 1:
+    #         for i in range(5):
+    #             self.channels[i].setValue(
+    #                 self.channels[i].value() + self.compensate[num][0].value())
+    #         self.channels[10].setValue(self.channels[10].value(
+    #         ) - self.ratio.value()*self.compensate[num][0].value())
+    #     elif num == 2:
+    #         for i in (0, 5):
+    #             self.channels[i].setValue(
+    #                 self.channels[i].value() + self.compensate[num][0].value())
+    #     elif num == 3:
+    #         for i in range(5):
+    #             self.channels[i].setValue(
+    #                 self.channels[i].value() + self.compensate[num][0].value())
+    #     elif num == 4:
+    #         for i in range(5, 10):
+    #             self.channels[i].setValue(
+    #                 self.channels[i].value() + self.compensate[num][0].value())
+    #     elif num == 5:
+    #         for i in (10, 11):
+    #             self.channels[i].setValue(
+    #                 self.channels[i].value() + self.compensate[num][0].value())
+    #     elif num == 6:
+    #         for i in range(12):
+    #             self.channels[i].setValue(
+    #                 self.channels[i].value() + self.compensate[num][0].value())
 
     def createShutters(self):
         self.shutterFrame = QGroupBox("Shutters")
@@ -203,7 +198,7 @@ class DAC(QGroupBox):
         self.layout = QVBoxLayout()
         self.layout.addWidget(self.pre)
         self.layout.addWidget(self.data)
-        self.layout.addWidget(self.compensationFrame)
+        # self.layout.addWidget(self.compensationFrame)
         self.layout.addWidget(self.shutterFrame)
         self.layout.setContentsMargins(0, 0, 0, 0)
         self.layout.setSpacing(0)
@@ -221,9 +216,9 @@ class DAC(QGroupBox):
         for i in range(len(self.shutters)):
             self.shutters[i].toggled.connect(
                 lambda chk, key=i: self.switch(key))
-        for i in range(len(self.compensate)):
-            self.compensate[i][1].clicked.connect(
-                lambda chk, key=i: self.applyComp(key))
+        # for i in range(len(self.compensate)):
+        #     self.compensate[i][1].clicked.connect(
+        #         lambda chk, key=i: self.applyComp(key))
 
     def set_shutter(self, num, state):
         """API for shutter"""
@@ -547,17 +542,14 @@ class AD5791:
         self.VREF = 10.0
         self.serial_num = ser
         self.dll = cdll.LoadLibrary(dll)
-        self.connect()
-        self.SPI_Init()
-        self.device_start()
-
-    def connect(self):
         # Close the connections if already exist
-        self.dll.USBIO_CloseDeviceByNumber(self.serial_num)
-        self.device_num = self.dll.USBIO_OpenDeviceByNumber(self.serial_num)
+        self.dll.USBIO_CloseDeviceByNumber(ser)
+        self.device_num = self.dll.USBIO_OpenDeviceByNumber(ser)
         if self.device_num == 0xFF:
             print("No USB2UIS can be connected!")
             exit()
+        self.SPI_Init()
+        self.device_start()
 
     def SPI_Init(self, frequency=8, mode=1, timeout_read=100, timeout_write=100):
         """SPI settings, frequency upto 8 selections, representing 200kHz 400kHz, 600kHz, 800kHz, 1MHz, 2MHz, 4MHz, 6MHz and 12MHz. Mode is specified to the clock signal, and the timeout is used to specify the timeout of read and write, occupying 16-bit data respectively"""
@@ -628,15 +620,12 @@ class AD5791Ctrl(QGroupBox):
         self.level.setChecked(True)
         self.level.setFont(myfont)
         self.level.setStyleSheet("background-color: green")
-        self.connection = QPushButton("Connect")
-        self.connection.setFont(myfont)
         layout = QHBoxLayout()
         layout.addWidget(QLabel("Vref"), 0)
         layout.addWidget(self.value, 1)
         layout.addWidget(self.level, 1)
         layout.addWidget(self.switch, 1)
         layout.addWidget(self.reset, 1)
-        layout.addWidget(self.connection, 1)
         self.setLayout(layout)
         self.set_connect()
         # self.level.setChecked(False)
@@ -649,7 +638,6 @@ class AD5791Ctrl(QGroupBox):
         self.switch.toggled.connect(self.set_switch)
         self.reset.clicked.connect(self.resetAll)
         self.level.toggled.connect(self.changeLevel)
-        self.connection.clicked.connect(self.device.connect)
 
     def set_voltage(self):
         self.device.set_voltage(self.value.value())
@@ -693,7 +681,7 @@ class Window(QWidget):
         super().__init__()
         self.setWindowIcon(QIcon("control-panel.png"))
         self.setWindowIconText("Control Panel")
-        self.dac = DAC()
+        self.dac = AD5372Ctrl()
         self.rf = RSCtrl("192.168.32.145")
         self.rf.setRange(-80, -2)
         self.rf.setTitle("RF")
