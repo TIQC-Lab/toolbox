@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import *
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import pyqtSlot, pyqtSignal, QSize, QRect
 import numpy as np
-from LVSpinBox import *
+from .LVSpinBox import *
 from ctypes import *
 
 
@@ -14,7 +14,7 @@ class AD5372(object):
     """This class is designed to control AD5372, and I have set the LDAC at the Low level which enable Synchronous DAC Update 
  at the rising edge of SYNC with the DGND pin of sub2spi module."""
 
-    def __init__(self, ser="BSPT002144", dll="usb2uis.dll"):
+    def __init__(self, ser, dll):
         self.VREF = 5.0
         self.offset_code = 0x2000
         self.channels = [0x08+i for i in range(32)]
@@ -87,9 +87,9 @@ class AD5372Ctrl(QGroupBox):
                     14, 17, 16, 19, 18, 21, 20, 23, 22, 25, 24, 27, 26, 29, 28, 31, 30]
     dataNum = 32
 
-    def __init__(self):
+    def __init__(self, ser="BSPT002144", dll="usb2uis.dll"):
         super().__init__()
-        self.device = AD5372()
+        self.device = AD5372(ser, dll)
         self.createConfig()
         self.createChannels()
         self.init()
@@ -97,7 +97,7 @@ class AD5372Ctrl(QGroupBox):
         self.createShutters()
         self.setupUI()
         self.setConnect()
-        self.loadData(True)
+        self.loadData()
 
     def createChannels(self):
         self.channels = [LVSpinBox() for i in range(self.dataNum)]

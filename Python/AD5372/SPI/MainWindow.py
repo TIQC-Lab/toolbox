@@ -5,7 +5,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import pyqtSlot, pyqtSignal, QSize, QRect
-from TopticaLaser import TopticaLaser as Laser
+from modules.TopticaLaser import TopticaLaser as Laser
 from ctypes import *
 from modules.RS import *
 from modules.Power import *
@@ -22,8 +22,9 @@ class Window(QWidget):
         self.setWindowIcon(QIcon("control-panel.png"))
         self.setWindowIconText("Control Panel")
         self.dc = PCIe6738Ctrl(
-            'Dev1', [0, 2, 4, 6, 8, 11, 12, 14, 16, 18, 20, 22])
+            'PCIe-6738', [0, 2, 4, 6, 8, 11, 12, 14, 16, 18, 20, 22])
         self.dac = AD5372Ctrl()
+        # self.dac = QPushButton('AD 5372')
         self.rf = RSCtrl("192.168.32.145")
         self.rf.setRange(-80, -2)
         self.rf.setTitle("RF")
@@ -38,7 +39,7 @@ class Window(QWidget):
         self.microwave.setTitle("Microwave")
         self.oven = PowerCtrl("ASRLCOM6::INSTR")
         self.oven.setTitle("Oven")
-        self.vref = AD5791Ctrl()
+        self.vref = AD5791Ctrl("BSPT002144", "usb2uis.dll")
         self.vref.setRange(0.5, 2.0)
         self.vref.setTitle("RF Reference")
         self.create_func()

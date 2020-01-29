@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import *
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import pyqtSlot, pyqtSignal, QSize, QRect
 from ctypes import *
-from LVSpinBox import *
+from .LVSpinBox import *
 
 
 
@@ -13,18 +13,21 @@ class AD5791:
     """This class is designed to control AD5791, and I have set the LDAC at the Low level which enable Synchronous DAC Update 
  at the rising edge of SYNC."""
 
-    def __init__(self, ser="BSPT002144", dll="usb2uis.dll"):
+    def __init__(self, ser, dll):
         self.VREF = 10.0
         self.serial_num = ser
         self.dll = cdll.LoadLibrary(dll)
+        self.connect()
+        self.SPI_Init()
+        self.device_start()
+
+    def connect(self):
         # Close the connections if already exist
-        self.dll.USBIO_CloseDeviceByNumber(ser)
-        self.device_num = self.dll.USBIO_OpenDeviceByNumber(ser)
+        self.dll.USBIO_CloseDeviceByNumber(self.serial_num)
+        self.device_num = self.dll.USBIO_OpenDeviceByNumber(self.serial_num)
         if self.device_num == 0xFF:
             print("No USB2UIS can be connected!")
             exit()
-        self.SPI_Init()
-        self.device_start()
 
     def SPI_Init(self, frequency=8, mode=1, timeout_read=100, timeout_write=100):
         """SPI settings, frequency upto 8 selections, representing 200kHz 400kHz, 600kHz, 800kHz, 1MHz, 2MHz, 4MHz, 6MHz and 12MHz. Mode is specified to the clock signal, and the timeout is used to specify the timeout of read and write, occupying 16-bit data respectively"""
