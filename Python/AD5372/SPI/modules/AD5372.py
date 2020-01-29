@@ -100,7 +100,7 @@ class AD5372Ctrl(QGroupBox):
         self.loadData(True)
 
     def createChannels(self):
-        self.channels = [LVSpinBox()]*self.dataNum
+        self.channels = [LVSpinBox() for i in range(self.dataNum)]
         gridLayout = QGridLayout()
         self.data = QGroupBox(
             "Channels(DC1:1-5, DC2:6-10, RF1:11, RF2:12,Shutters:13-16)")
@@ -136,7 +136,7 @@ class AD5372Ctrl(QGroupBox):
     #     self.compensationFrame = QGroupBox(
     #         "Compensation Combinations: DC1 RF11 DC1-2 DC2-2")
     #     self.compensationFrame.setContentsMargins(1, 1, 1, 1)
-    #     self.compensate = [[LVSpinBox(), QPushButton('GO')]]*self.dataNum
+    #     self.compensate = [[LVSpinBox(), QPushButton('GO')] for i in range(len(names))]
     #     layout = QGridLayout()
     #     layout.setContentsMargins(0, 0, 0, 0)
     #     layout.setSpacing(0)

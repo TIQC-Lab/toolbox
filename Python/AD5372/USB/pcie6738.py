@@ -79,10 +79,10 @@ class PCIe6738Ctrl(QGroupBox):
     dataFile = "data_pcie6738.dat"
     # channelOrder = [0, 2, 4, 6, 8, 11, 12, 14, 16, 18, 20, 22]
 
-    def __init__(self, name='Dev1', channels=range(32)):
+    def __init__(self, name='PCIe-6738', channels=range(32)):
         super().__init__()
         self.dataNum = len(channels)
-        self.pcie = pcie6738(name, channels)
+        self.pcie = PCIe6738(name, channels)
         self.createConfig()
         self.createChannels()
         self.create_compensation()
@@ -91,16 +91,16 @@ class PCIe6738Ctrl(QGroupBox):
         self.loadData()
 
     def createChannels(self):
-        data = self.pcie.readAll()
-        self.channels = [LVSpinBox()]*self.dataNum
+        # data = self.pcie.readAll()
+        self.channels = [None]*self.dataNum
         gridLayout = QGridLayout()
         self.data = QGroupBox(
             "Channels(DC1:1-5, DC2:6-10, RF1:11, RF2:12)")
         self.data.setContentsMargins(1, 1, 1, 1)
         # Data entries
         for i in range(self.dataNum):
-            # self.channels[i] = LVSpinBox()
-            self.channels[i].setValue(data[i])
+            self.channels[i] = LVSpinBox()
+            # self.channels[i].setValue(data[i])
             self.channels[i].setDecimals(4)
             self.channels[i].setRange(-10.0, 10.0)
             groupbox = QGroupBox()
@@ -122,7 +122,7 @@ class PCIe6738Ctrl(QGroupBox):
         self.compensationFrame = QGroupBox(
             "Compensation Combinations: DC1 RF11 DC1-2 DC2-2")
         self.compensationFrame.setContentsMargins(1, 1, 1, 1)
-        self.compensate = [[LVSpinBox(), QPushButton('GO')]]*self.dataNum
+        self.compensate = [[LVSpinBox(), QPushButton('GO')] for i in range(len(names))]
         layout = QGridLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
