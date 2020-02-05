@@ -23,8 +23,8 @@ class Window(QWidget):
         self.setWindowIconText("Control Panel")
         self.dc = PCIe6738Ctrl(
             'PCIe-6738', [0, 2, 4, 6, 8, 11, 12, 14, 16, 18, 20, 22])
-        self.dac = AD5372Ctrl()
-        # self.dac = QPushButton('AD 5372')
+        # self.dac = AD5372Ctrl()
+        self.dac = QPushButton('AD 5372')
         self.rf = RSCtrl("192.168.32.145")
         self.rf.setRange(-80, -2)
         self.rf.setTitle("RF")

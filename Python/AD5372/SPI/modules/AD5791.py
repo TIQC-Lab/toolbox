@@ -101,7 +101,7 @@ class AD5791Ctrl(QGroupBox):
         self.connection = QPushButton("Connect")
         self.connection.setFont(myfont)
         layout = QHBoxLayout()
-        layout.addWidget(QLabel("Vref"), 0)
+        # layout.addWidget(QLabel("V"), 0)
         layout.addWidget(self.value, 1)
         layout.addWidget(self.level, 1)
         layout.addWidget(self.switch, 1)
