@@ -5,7 +5,8 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import pyqtSlot, pyqtSignal, QSize, QRect
-from .LVSpinBox import *
+from LVSpinBox import *
+import sys
 
 
 class PCIe6738(object):
@@ -238,3 +239,16 @@ class PCIe6738Ctrl(QGroupBox):
             print("Voltage over range!")
             return
         self.pcie.set_voltage(index, Vout)
+
+
+if __name__ == "__main__":
+    # myappid = u'PyControl'  # arbitrary string
+    # windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+    app = QApplication(sys.argv)
+    app.setFont(QFont("Vollkorn", 10))
+    app.setStyle('Fusion')
+    # app.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
+    ui = PCIe6738Ctrl()
+    # ui.center()
+    ui.show()
+    sys.exit(app.exec_())

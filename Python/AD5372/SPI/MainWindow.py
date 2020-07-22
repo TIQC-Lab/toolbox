@@ -31,7 +31,7 @@ class Window(QWidget):
         self.raman = RSCtrl("192.168.32.148")
         self.raman.setRange(-80, -11.5)
         self.raman.setTitle("Raman 173")
-        self.raman_pll = RSCtrl("192.168.32.38")
+        self.raman_pll = RSCtrl("192.168.32.10")
         self.raman_pll.setRange(-80, 10.5)
         self.raman_pll.setTitle("Raman 230")
         self.microwave = RSCtrl("192.168.32.103")
