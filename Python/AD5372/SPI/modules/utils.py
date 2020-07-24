@@ -29,7 +29,7 @@ class EnumCtrl(QWidget):
         super().__init__(parent)
         col = QVBoxLayout(self)
         col.addStretch()
-        if label:
+        if label != '':
             self.label = QLabel(label)
             self.label.setStyleSheet(
                 '''QLabel{font-size:14pt; font-family: Microsoft YaHei}''')
@@ -64,8 +64,7 @@ class EnumCtrl(QWidget):
     def textAt(self, index=None):
         if index:
             return str(self.enum.itemText(index))
-        else:
-            return str(self.enum.currentText())
+        return str(self.enum.currentText())
 
 
 class GroupCtrl(QGroupBox):
@@ -126,16 +125,16 @@ class LVNumCtrl(QWidget):
     def __init__(self, label='', func=None, parent=None):
         super().__init__(parent)
         row = QHBoxLayout(self)
-        self.label = QLabel(label)
+        row.addStretch()
+        if label != '':
+            self.label = QLabel(label)
+            self.label.setStyleSheet(
+                '''QLabel{qproperty-alignment:AlignCenter; font-size:12pt}''')
+            row.addWidget(self.label, 0)
         self.spin = LVSpinBox()
         self.spin.valueChanged.connect(self.valueChanged.emit)
         if func:
             self.valueChanged.connect(func)
-
-        self.label.setStyleSheet(
-            '''QLabel{qproperty-alignment:AlignCenter; font-size:12pt}''')
-        row.addStretch()
-        row.addWidget(self.label, 0)
         row.addWidget(self.spin, 1)
         row.addStretch()
 
@@ -171,7 +170,7 @@ class Button(QWidget):
         super().__init__(parent)
         row = QHBoxLayout(self)
         row.addStretch()
-        if not label == '':
+        if label != '':
             self.label = QLabel(label)
             self.label.setStyleSheet(
                 '''QLabel{qproperty-alignment:AlignCenter; font-size:12pt}''')
@@ -179,7 +178,6 @@ class Button(QWidget):
         self.button = QPushButton()
         row.addWidget(self.button, 1)
         row.addStretch()
-        self.button.setFont(QFont('Microsoft YaHei', 10, True))
         self.button.clicked.connect(self.clicked.emit)
         if func:
             self.clicked.connect(func)
@@ -189,11 +187,11 @@ class ButtonCtrl(QWidget):
     ''' Implemented button control with label and checkable property '''
     toggled = pyqtSignal(bool)
 
-    def __init__(self,  label='', func=None, default=False, parent=None):
+    def __init__(self, label='', func=None, default=False, parent=None):
         super().__init__(parent)
         row = QHBoxLayout(self)
         row.addStretch()
-        self.text = ['ON', 'OFF']
+        self.text = ('ON', 'OFF')
         if not label == '':
             self.label = QLabel(label)
             self.label.setStyleSheet(
@@ -213,17 +211,14 @@ class ButtonCtrl(QWidget):
         self.button.setChecked(default)
         self.updateStatus(default)
 
-    def setLabel(self, label=''):
-        self.label.setText(label)
-
     def setChecked(self, state):
         self.button.setChecked(state)
 
     def setStatusText(self, on='ON', off='OFF'):
-        self.text = [on, off]
+        self.text = (on, off)
         self.updateStatus(self.button.isChecked())
 
-    def status(self):
+    def isChecked(self):
         return self.button.isChecked()
 
     def updateStatus(self, state):
@@ -231,4 +226,3 @@ class ButtonCtrl(QWidget):
             self.button.setText(self.text[0])
         else:
             self.button.setText(self.text[-1])
-
