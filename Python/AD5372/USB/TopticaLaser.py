@@ -1,4 +1,4 @@
-from toptica.lasersdk.dlcpro.v2_0_3 import DLCpro, NetworkConnection, DeviceNotFoundError, DecopError, UserLevel
+from toptica.lasersdk.dlcpro.v2_2_0 import DLCpro, NetworkConnection, DeviceNotFoundError, DecopError, UserLevel
 
 
 class TopticaLaser(object):
@@ -6,7 +6,8 @@ class TopticaLaser(object):
 
     def __init__(self, ip):
         self.ip = ip
-        self.dlc = DLCpro(NetworkConnection(self.ip)).__enter__()
+        self.dlc = DLCpro(NetworkConnection(self.ip))
+        self.dlc.__exit__()
 
     def get_voltage_set(self):
         return(self.dlc.laser1.dl.pc.voltage_set.get())
@@ -40,6 +41,7 @@ class TopticaLaser(object):
             self.dlc.laser1.dl.cc.enabled.set(True)
         else:
             self.dlc.laser1.dl.cc.enabled.set(False)
+            
     def close(self):
         self.dlc.__exit__()
 

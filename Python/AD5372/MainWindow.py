@@ -11,14 +11,17 @@ import numpy as np
 import time
 import visa
 from TopticaLaser import TopticaLaser as Laser
+from threading import Thread, RLock
 # import qdarkstyle
 # import re # Pattern match
 # import serial
 # import pyrpl
 from functools import partial
-from threading import Thread, RLock
-from ctypes import c_double, c_long, create_string_buffer, windll, cdll
+import logging
+from ctypes import *
 
+_logger = logging.getLogger(__name__)
+logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
 
 # Open a resource manager of visa
 rm = visa.ResourceManager('@py')
@@ -236,7 +239,7 @@ class PCIe6738Ctrl(GroupCtrl):
 
     def __init__(self, name='PCIe-6738', channels=range(32)):
         super().__init__(name)
-        self.dataFile = 'data/pcie6738.dat'
+        self.dataFile = 'pcie6738_data.dat'
         self.channelOrder = channels
         self.dataNum = len(channels)
         self.pcie = PCIe6738(name, channels)
@@ -257,7 +260,6 @@ class PCIe6738Ctrl(GroupCtrl):
             self.channels[i] = LVNumCtrl(str(i+1), partial(self.dataUpdate, i))
             self.channels[i].setDecimals(4)
             self.channels[i].setRange(-10.0, 10.0)
-
             gridLayout.addWidget(self.channels[i], i//6, i % 6, 1, 1)
         gridLayout.setContentsMargins(0, 0, 0, 0)
         gridLayout.setSpacing(0)
@@ -360,8 +362,6 @@ class PCIe6738Ctrl(GroupCtrl):
                     self.channels[i].setValue(data[i])
 
         else:
-            if not os.path.exists('data'):
-                os.makedirs('data')
             np.savetxt(self.dataFile, np.zeros(self.dataNum))
             self.reset()
 
@@ -388,7 +388,7 @@ class AD5372Ctrl(GroupCtrl):
     def __init__(self, title='', parent=None):
         super().__init__(title, parent)
         self.lock = RLock()
-        self.dataFile = 'data/ad5731.dat'
+        self.dataFile = 'ad5372_data.dat'
         self.channelOrder = [1, 0, 3, 2, 5, 4, 7, 6, 9, 8, 11, 10, 13, 12, 15,
                              14, 17, 16, 19, 18, 21, 20, 23, 22, 25, 24, 27, 26, 29, 28, 31, 30]
         self.dll = cdll.LoadLibrary('AD5372.dll')
@@ -404,55 +404,43 @@ class AD5372Ctrl(GroupCtrl):
     def createChannels(self):
         self.channels = [LVNumCtrl(
             str(i+1), partial(self.dataUpdate, index=i)) for i in range(self.dataNum)]
-        # self.data = GroupCtrl(
-        #     'Channels(DC1:1-5, DC2:6-10, RF1:11, RF2:12,Shutters:13-16)')
-        # gridLayout = QGridLayout(self.data)
-        # self.data.setContentsMargins(1, 1, 1, 1)
+        self.data = GroupCtrl(
+            'Channels(DC1:1-5, DC2:6-10, RF1:11, RF2:12,Shutters:13-16)')
+        gridLayout = QGridLayout(self.data)
+        self.data.setContentsMargins(1, 1, 1, 1)
         # Data entries
         for i in range(self.dataNum):
             self.channels[i].setDecimals(4)
             self.channels[i].setRange(-10.0, 10.0)
-            # gridLayout.addWidget(self.channels[i], i//8, i % 8, 1, 1)
-        # gridLayout.setContentsMargins(0, 0, 0, 0)
-        # gridLayout.setSpacing(0)
-        # gridLayout.setVerticalSpacing(0)
+            gridLayout.addWidget(self.channels[i], i//8, i % 8, 1, 1)
+        gridLayout.setContentsMargins(0, 0, 0, 0)
+        gridLayout.setSpacing(0)
+        gridLayout.setVerticalSpacing(0)
 
     # def create_compensation(self):
     #     '''This part is used to compensate the DC null to RF null'''
-    #     names = ['Horizontal', 'Vertical', 'Axial', 'DC1', 'DC2', 'RFs', 'All']
+    #     names = ["Horizontal", "Vertical", "Axial", "DC1", "DC2", "RFs", "All"]
     #     self.compensationFrame = GroupCtrl(
-    #         'Compensation Combinations: DC1 RF11 DC1-2 DC2-2')
-    #     self.compensationFrame.setContentsMargins(1, 1, 1, 1)
-    #     self.compensate = [[LVSpinBox(), QPushButton('GO')]]*self.dataNum
-    #     layout = QGridLayout()
+    #         "Compensation Combinations: DC1 RF11 DC1-2 DC2-2")
+    #     self.compensate = [[LVNumCtrl(names[i]), Button(
+    #         'GO', partial(self.applyComp, num=i))] for i in range(len(names))]
+    #     layout = QGridLayout(self.compensationFrame)
     #     layout.setContentsMargins(0, 0, 0, 0)
     #     layout.setSpacing(0)
-    #     self.ratio = LVSpinBox()
+    #     self.ratio = LVNumCtrl('Ratio')
     #     self.ratio.setDecimals(2)
     #     self.ratio.setRange(0, 50)
     #     self.ratio.setValue(1)
-    #     groupbox = GroupCtrl()
-    #     ly = QHBoxLayout()
-    #     ly.setContentsMargins(0, 0, 0, 0)
-    #     ly.addWidget(QLabel('DC1:RF1= '))
-    #     ly.addWidget(self.ratio, 1)
-    #     groupbox.setLayout(ly)
-    #     layout.addWidget(groupbox, 0, 0, 1, 1)
+    #     layout.addWidget(self.ratio, 0, 0, 1, 1)
     #     for i in range(len(self.compensate)):
-    #         groupbox = GroupCtrl()
-    #         ly = QHBoxLayout()
+    #         group = QWidget()
+    #         ly = QHBoxLayout(group)
     #         self.compensate[i][0].setRange(-1.0, 1.0)
     #         self.compensate[i][0].setDecimals(4)
-    #         self.compensate[i][0].setSingleStep(0.0001)
-    #         label = QLabel(names[i])
-    #         label.setFont(QFont('Microsoft YaHei', 12, 100))
-    #         ly.addWidget(label)
     #         ly.addWidget(self.compensate[i][0], 1)
     #         ly.addWidget(self.compensate[i][1], 1)
     #         ly.setContentsMargins(0, 0, 0, 0)
-    #         groupbox.setLayout(ly)
-    #         layout.addWidget(groupbox, (i+1)//4, (i+1) % 4, 1, 1)
-    #     self.compensationFrame.setLayout(layout)
+    #         layout.addWidget(group, (i+1)//4, (i+1) % 4, 1, 1)
 
     # def applyComp(self, num):
     #     if num == 0:
@@ -490,6 +478,7 @@ class AD5372Ctrl(GroupCtrl):
 
     def createShutters(self):
         self.shutterFrame = GroupCtrl('Shutters')
+        # buttons = ['PMT', 'Protection', '399', '935', 'RF UnLock', 'Trap RF', '399']
         buttons = ['399V', 'Protection', '935',
                    '399P', 'PMT', 'RF UnLock', 'Trap RF']
         self.shutterArray = [1, 2, 3, 4, 5, 6, 7]
@@ -499,8 +488,7 @@ class AD5372Ctrl(GroupCtrl):
         layout.setContentsMargins(0, 0, 0, 0)
         for i in range(len(buttons)):
             self.channels[self.shutterArray[i]-1].setReadOnly(True)
-            self.channels[self.shutterArray[i] -
-                          1].valueChanged.connect(partial(self.updateShutter, num=i))
+            self.channels[self.shutterArray[i]-1].valueChanged.connect(partial(self.updateShutter, num=i))
             layout.addWidget(self.shutters[i])
 
     def createConfig(self):
@@ -517,7 +505,7 @@ class AD5372Ctrl(GroupCtrl):
     def setupUI(self):
         layout = QVBoxLayout(self)
         layout.addWidget(self.pre)
-        # layout.addWidget(self.data)
+        layout.addWidget(self.data)
         # layout.addWidget(self.compensationFrame)
         layout.addWidget(self.shutterFrame)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -526,8 +514,8 @@ class AD5372Ctrl(GroupCtrl):
 
     def set_shutter(self, num, state):
         '''API for shutter'''
-        if num < len(self.shutters):
-            self.shutters[num].setChecked(state)
+        if num <= len(self.shutters):
+            self.shutters[num-1].setChecked(state)
         else:
             print('Shutter index over range!')
             exit()
@@ -551,15 +539,13 @@ class AD5372Ctrl(GroupCtrl):
                 for i in range(len(self.shutters)):
                     self.updateShutter(i)
             else:
-                if not os.path.exists('data'):
-                    os.makedirs('data')
                 np.savetxt(self.dataFile, np.zeros(self.dataNum))
                 self.reset()
 
     def saveData(self):
         with self.lock:
             data = np.array([self.channels[i].value()
-                            for i in range(self.dataNum)])
+                         for i in range(self.dataNum)])
             np.savetxt(self.dataFile, data)
 
     def reset(self):
@@ -584,7 +570,9 @@ class AD5372Ctrl(GroupCtrl):
             self.channels[self.shutterArray[index]-1].setValue(5)
         else:
             self.channels[self.shutterArray[index]-1].setValue(0.0)
-        
+        thread = Thread(target=self.saveData, daemon=True, name='AD5372 Save data')
+        thread.start()
+        # thread.join()
 
     def set_voltage(self, channel, Vout):
         if (abs(Vout) > 10.00001):
@@ -592,9 +580,6 @@ class AD5372Ctrl(GroupCtrl):
             return
         self.dll.AD5372_DAC(channel, c_double(Vout))
         self.dll.AD5372_LDAC()
-        thread = Thread(target=self.saveData, daemon=True,
-                        name='AD5372 Save data')
-        thread.start()
 
 
 class RS(object):
@@ -677,18 +662,20 @@ class RS(object):
         self.sig_gen_socket.close()
 
     def __del__(self):
-        self.sig_gen_socket.close()
+        try:
+            self.sig_gen_socket.close()
+        except:
+            pass
 
 class RSCtrl(GroupCtrl):
     def __init__(self, ip, title=''):
         super().__init__(title)
         self.device = RS(ip)
-        self.freq = LVNumCtrl('Freq(MHz)', self.set_freq)
+        _logger.info('IP: %s, is connected', self.device.sig_gen_ip)
+        self.freq = LVNumCtrl('Freq', self.set_freq)
         self.freq.setRange(0, 12750)
         self.freq.setDecimals(6)
         freq = self.device.read_frequency()
-        if freq > 1000:
-            self.freq.setRange(0, 12750)
         self.freq.setValue(freq)
         self.amplitude = LVNumCtrl('Amp', self.set_amp)
         self.amplitude.setRange(-80, 20)
@@ -700,6 +687,7 @@ class RSCtrl(GroupCtrl):
         else:
             self.switch.setChecked(False)
         self.create_UI()
+        
 
     def setRange(self, low=-80, upper=20):
         self.amplitude.setRange(low, upper)
@@ -713,14 +701,20 @@ class RSCtrl(GroupCtrl):
 
     def set_freq(self, value):
         self.device.set_frequency(value)
+        _logger.info('IP: %s, is setting the frequency to %f', self.device.sig_gen_ip, value)
+
 
     def set_amp(self, value):
         self.device.set_amplitude(value)
+        _logger.info('IP: %s, is setting the amplitude to %f',
+                     self.device.sig_gen_ip, value)
+
 
     def set_output(self, state):
         self.device.set_output(state)
-    
-    def __del__(self):
+        _logger.info('IP: %s, is setting the output to %d',
+                     self.device.sig_gen_ip, state)
+    def close(self):
         self.device.close_connection()
 
 
@@ -760,8 +754,10 @@ class Power(object):
         self.device.close()
 
     def __del__(self):
-        self.device.close()
-
+        try:
+            self.device.close()
+        except:
+            pass
 
 class PowerCtrl(GroupCtrl):
     def __init__(self, COM, baudrate=9600, title=''):
@@ -804,7 +800,7 @@ class PowerCtrl(GroupCtrl):
 
     def set_switch(self, state):
         self.switch.setChecked(state)
-    
+
     def close(self):
         self.device.close_connection()
 
@@ -818,67 +814,65 @@ class AD5791(object):
         self.serial_num = ser
         self.dll = cdll.LoadLibrary(dll)
         # Close the connections if already exist
-        try:
-            self.dll.USBIO_CloseDeviceByNumber(ser)
-        except:
-            pass
+        self.dll.USBIO_CloseDeviceByNumber(ser)
         self.device_num = self.dll.USBIO_OpenDeviceByNumber(ser)
         if self.device_num == 0xFF:
             print('No USB2UIS can be connected!')
             exit()
         self.SPI_Init()
         self.device_start()
-    
-    def write(self, command, size=3):
-        self.dll.USBIO_SPIWrite(self.device_num, 0, 0,
-                                command.to_bytes(3, byteorder='big'), size)
 
-    def read(self, size=3):
-        out = create_string_buffer(3)
-        self.dll.USBIO_SPIRead(self.device_num, 0, 0, out, size)
-        return out.value
-        
     def SPI_Init(self, frequency=8, mode=1, timeout_read=100, timeout_write=100):
         '''SPI settings, frequency upto 8 selections, representing 200kHz 400kHz, 600kHz, 800kHz, 1MHz, 2MHz, 4MHz, 6MHz and 12MHz. Mode is specified to the clock signal, and the timeout is used to specify the timeout of read and write, occupying 16-bit data respectively'''
         self.dll.USBIO_SPISetConfig(
             self.device_num, (mode << 4)+frequency, (timeout_write << 16)+timeout_read)
-        
+
     def data(self, Vout):
         return int((Vout+self.VREF)*(2**20-1)/2/self.VREF)
 
     def device_start(self):
         '''Set the control register to enable the dac into a normal operation mode and offset code style'''
-        self.write(0x200012)
+        self.dll.USBIO_SPIWrite(self.device_num, None,
+                                0, (0x200012).to_bytes(3, byteorder='big'), 3)
 
     def set_voltage(self, Vout):
         '''The Vout set to the DAC should exceed \pm 10V'''
         if abs(Vout) > 10.0000000001:
             print('Voltage over range!')
         else:
-            self.write((0x01 << 20) + self.data(Vout))
-            
+            self.dll.USBIO_SPIWrite(self.device_num, None, 0, ((
+                0x01 << 20) + self.data(Vout)).to_bytes(3, byteorder='big'), 3)
+
     def read_voltage(self):
-        self.write(0x900000)
-        out = self.read()
+        out = b'\x00'*3
+        self.dll.USBIO_SPIWrite(self.device_num, None,
+                                0, (0x900000).to_bytes(3, byteorder='big'), 3)
+        self.dll.USBIO_SPIRead(self.device_num, None, 0, out, 3)
         data = int.from_bytes(out, byteorder='big')
         data = data & 0x0FFFFF
         return data*2*self.VREF/(2**20 - 1) - self.VREF
-    
+
     def LDAC(self):
-        self.write(0x400001)
+        self.dll.USBIO_SPIWrite(self.device_num, None,
+                                0, (0x400001).to_bytes(3, byteorder='big'), 3)
 
     def clear(self):
-        self.write(0x400002)
+        self.dll.USBIO_SPIWrite(self.device_num, None,
+                                0, (0x400002).to_bytes(3, byteorder='big'), 3)
 
     def reset(self):
-        self.write(0x400004)
+        self.dll.USBIO_SPIWrite(self.device_num, None,
+                                0, (0x400004).to_bytes(3, byteorder='big'), 3)
 
     def disable_output(self):
-        self.write(0x20001E)
+        self.dll.USBIO_SPIWrite(self.device_num, None,
+                                0, (0x20001E).to_bytes(3, byteorder='big'), 3)
 
     def __del__(self):
-        self.dll.USBIO_CloseDeviceByNumber(self.serial_num)
-
+        try:
+            self.dll.USBIO_CloseDeviceByNumber(self.serial_num)
+        except:
+            pass
 
 class AD5791Ctrl(GroupCtrl):
     def __init__(self, title='', ser='BSPT002144', dll='usb2uis.dll'):
@@ -930,7 +924,7 @@ class AD5791Ctrl(GroupCtrl):
         if state:
             self.value.setValue(1.37)
         else:
-            self.value.setValue(0.55)
+            self.value.setValue(0.7)
 
     def setHighLevel(self, state):
         if state:
@@ -938,16 +932,7 @@ class AD5791Ctrl(GroupCtrl):
         else:
             self.level.setChecked(False)
 
-class VVA(GroupCtrl):
-    def __init__(self, label='', func=None, parent=None):
-        super().__init__(label, parent)
-        if func:
-            self.value = LVNumCtrl('Value', func)
-        else:
-            self.value = LVNumCtrl('Value')
-        row = QHBoxLayout(self)
-        row.addWidget(self.value)
-            
+
 class Window(QWidget):
     def __init__(self):
         super().__init__()
@@ -955,25 +940,22 @@ class Window(QWidget):
         self.setWindowIconText('Control Panel')
         self.pcie = PCIe6738Ctrl(
             'PCIe-6738', [0, 2, 4, 6, 8, 11, 12, 14, 16, 18, 20, 22])
-        self.dac = AD5372Ctrl('AD5732')
+        self.dac = AD5372Ctrl('AD5372')
         self.rf = RSCtrl('192.168.32.145', title='RF')
         self.rf.setRange(-80, 1)
         self.raman = RSCtrl('192.168.32.148', title='Raman 173')
-        self.raman.setRange(-80, -11.5)
+        self.raman.setRange(-80, -8.0)
         self.raman_pll = RSCtrl('192.168.32.14', title='Raman 230')
         self.raman_pll.setRange(-80, 10.5)
         self.microwave = RSCtrl('192.168.32.103', title='Microwave')
         self.microwave.setRange(-80, 10)
         self.oven = PowerCtrl('ASRLCOM6::INSTR', 9600, 'Oven')
         self.vref = AD5791Ctrl(title='RF Reference')
-        self.vref.setRange(0.5, 2.0)
+        self.vref.setRange(0.4, 2.0)
         self.eits = RSCtrl('192.168.32.146', title='EIT Sigma')
         self.eits.setRange(-80, -5)
         self.eitp = RSCtrl('192.168.32.147', title='EIT Pi')
-        self.eits.setRange(-80, -5)
-        # self.vva = LVNumCtrl('RF EOM', lambda x: self.dac.channels[31].setValue(x))
-        self.vva = VVA('EOM VVA', lambda x: self.dac.channels[31].setValue(x))
-        self.vva.value.setValue(self.dac.channels[31].value())
+        self.eitp.setRange(-80, -5)
         self.create_func()
         col = QVBoxLayout(self)
         col.setSpacing(0)
@@ -999,14 +981,13 @@ class Window(QWidget):
         row.addWidget(self.vref)
         row.addWidget(self.oven)
         row.addWidget(self.microwave)
-        
+
         row = QHBoxLayout()
         col.addLayout(row)
 
         row.addWidget(self.eits)
         row.addWidget(self.eitp)
-        row.addWidget(self.vva)
-
+        
         self.setContentsMargins(1, 1, 1, 1)
         self.setWindowTitle('Control Panel')
 
@@ -1057,6 +1038,7 @@ class Window(QWidget):
                     laser = Laser(laser_ips[0])
                     laser.enable_emission(False)
 
+
     def loading(self, state):
         if state:
             self.dac.set_shutter(1, True)
@@ -1088,7 +1070,16 @@ class Window(QWidget):
             # self.dac.set_shutter(4, True)
             # The other way to switch the level of RF by changing the setpoint
             self.vref.setHighLevel(True)
-    
+
+    def closeEvent(self, *args, **kwargs):
+        self.rf.close()
+        self.raman.close()
+        self.raman_pll.close()
+        self.microwave.close()
+        self.oven.close()
+        self.eitp.close()
+        self.eits.close()
+
     def center(self):
         frame_geometry = self.frameGeometry()
         screen = QApplication.desktop().screenNumber(
