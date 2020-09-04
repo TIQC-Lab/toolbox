@@ -8,7 +8,7 @@ Notes:
  1. This module is not tested yet
  2. It will be combined with ESP301 module within a GUI
 """
-
+import sys
 import usb.core
 import usb.util
 import re
@@ -18,27 +18,200 @@ from PyQt5.QtWidgets import *
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import pyqtSlot, pyqtSignal, QSize, QRect
 
+
+class GroupCtrl(QGroupBox):
+    def __init__(self, label='', parent=None):
+        super().__init__(parent)
+        self.setTitle(label)
+        self.setStyleSheet('''GroupCtrl{font-weight: bold; font-size:14pt}''')
+        self.setContentsMargins(2, 2, 2, 2)
+
+
+class Widget(QWidget):
+    def __init__(self, label='', parent=None):
+        super().__init__(parent)
+        self.setContentsMargins(2, 2, 2, 2)
+        # if not label:
+        #     self.setWindowTitle(label)
+        self.setWindowTitle(label)
+
 class LVSpinBox(QDoubleSpinBox):
-    stepChanged = pyqtSignal()
+    """ Custom SpinBox with similar properties as LabView number controls """
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setButtonSymbols(QAbstractSpinBox.NoButtons)
+        self.setKeyboardTracking(False)
+        self.setStyleSheet(
+            '''LVSpinBox{qproperty-alignment:AlignCenter; font-size:10pt}''')
 
     def stepBy(self, step):
         value = self.value()
-        point = str(self.text()).find('.')
+        minus = str(self.text()).find('-')
+        cursor = self.lineEdit().cursorPosition()
+        text = str(self.text())
+        length = len(text)
+        if minus > -1 and cursor == 0:
+            return None
+        point = text.find('.')
         if point < 0:
-            point = len(str(self.text()))
-        digit = point - self.lineEdit().cursorPosition()
-        if digit < 0:
+            point = length
+        digit = point - cursor
+        if cursor == minus + 1:
+            digit -= 1
+        if digit < -1:
             digit += 1
         self.setValue(value + step*(10**digit))
-        if self.value() != value:
-            self.stepChanged.emit()
+        # update the cursor position when the value changes
+        newlength = len(str(self.text()))
+        newcursor = cursor
+        if newlength > length:
+            if cursor == minus+1:
+                newcursor = cursor + 2
+            else:
+                newcursor = cursor + 1
+        elif newlength < length:
+            if not cursor == minus+1:
+                newcursor = cursor - 1
+        else:
+            return None
+        self.lineEdit().setCursorPosition(newcursor)
 
-    def onValueChanged(self, func):
-        self.editingFinished.connect(func)
-        self.stepChanged.connect(func)
+
+class LVNumCtrl(Widget):
+    """ Column alignment """
+    valueChanged = pyqtSignal(float)
+
+    def __init__(self, label='', func=None, horizontal=False, parent=None):
+        super().__init__('', parent)
+        if horizontal:
+            layout = QHBoxLayout(self)
+        else:
+            layout = QVBoxLayout(self)
+        layout.setSpacing(0)
+        layout.setContentsMargins(2, 2, 2, 2)
+        layout.addStretch()
+        if label != '':
+            self.label = QLabel(label)
+            self.label.setStyleSheet(
+                '''QLabel{qproperty-alignment:AlignCenter; font-size:12pt}''')
+            layout.addWidget(self.label, 0)
+        self.spin = LVSpinBox()
+        layout.addWidget(self.spin, 1)
+        layout.addStretch()
+        self.spin.valueChanged.connect(self.valueChanged.emit)
+        if func:
+            self.valueChanged.connect(func)
+
+    def setDecimals(self, decimals=0):
+        self.spin.setDecimals(decimals)
+
+    def setRange(self, low=0, high=100):
+        self.spin.setRange(low, high)
+
+    def value(self):
+        if self.spin.decimals() == 0:
+            return int(self.spin.value())
+        else:
+            return self.spin.value()
+
+    def setValue(self, val):
+        self.spin.setValue(val)
+
+    def setSignalValue(self, val):
+        if val == self.spin.value():
+            self.valueChanged.emit(val)
+        else:
+            self.spin.setValue(val)
+
+    def setReadOnly(self, state):
+        self.spin.setReadOnly(state)
+
+
+class Button(Widget):
+    """ Clickable button with label """
+    clicked = pyqtSignal(bool)
+
+    def __init__(self, label='', func=None, horizontal=False, parent=None):
+        super().__init__('', parent)
+        if horizontal:
+            layout = QHBoxLayout(self)
+        else:
+            layout = QVBoxLayout(self)
+        layout.setSpacing(0)
+        layout.setContentsMargins(2, 2, 2, 2)
+        layout.addStretch()
+        if label != '':
+            self.label = QLabel(label)
+            layout.addWidget(self.label)
+            self.label.setStyleSheet(
+                '''QLabel{qproperty-alignment:AlignCenter; font-size:12pt}''')
+        self.button = QPushButton()
+        layout.addWidget(self.button)
+        layout.addStretch()
+        self.button.clicked.connect(self.clicked.emit)
+        if func:
+            self.clicked.connect(func)
+
+    def setButtonText(self, text):
+        self.button.setText(text)
+
+    def setSize(self, width, height):
+        self.button.resize(width, height)
+
+
+class ButtonCtrl(Widget):
+    """ Implemented button control with label and checkable property """
+    toggled = pyqtSignal(bool)
+
+    def __init__(self,  label='', func=None, default=False, horizontal=False, parent=None):
+        super().__init__('', parent)
+        if horizontal:
+            layout = QHBoxLayout(self)
+        else:
+            layout = QVBoxLayout(self)
+        layout.setSpacing(0)
+        layout.setContentsMargins(2, 2, 2, 2)
+        layout.addStretch()
+        self.text = ('ON', 'OFF')
+        if label != '':
+            self.label = QLabel(label)
+            self.label.setStyleSheet(
+                '''QLabel{qproperty-alignment:AlignCenter; font-size:12pt}''')
+            layout.addWidget(self.label, 0)
+        self.button = QPushButton('ON')
+        layout.addWidget(self.button, 1)
+        layout.addStretch()
+        # Defaultly False
+        self.button.setCheckable(True)
+        self.button.setChecked(default)
+        self.button.setStyleSheet(
+            '''QPushButton{background-color:red; font-weight:bold; font-size: 10pt} QPushButton:checked{background-color: green}''')
+        self.button.toggled.connect(self.toggled.emit)
+        self.toggled.connect(self.updateStatus)
+        if func:
+            self.toggled.connect(func)
+        self.updateStatus(default)
+
+    def setChecked(self, state):
+        self.button.setChecked(state)
+
+    def setStatusText(self, on='ON', off='OFF'):
+        self.text = (on, off)
+        self.updateStatus(self.button.isChecked())
+
+    def isChecked(self):
+        return self.button.isChecked()
+
+    def updateStatus(self, state):
+        if state:
+            self.button.setText(self.text[0])
+        else:
+            self.button.setText(self.text[-1])
 
 
 NEWFOCUS_COMMAND_REGEX = re.compile("([0-9]{0,1})([a-zA-Z*]{2,})([0-9+.?-]*)")
+
 MOTOR_TYPE = {
     "0": "No motor connected",
     "1": "Motor Unknown",
@@ -112,10 +285,8 @@ class Controller(object):
         assert (self.ep_out and self.ep_in) is not None
         # Confirm connection to user
         for slave in range(1, self.slaves+1):
-        resp = self.command(slave, 'VE?')
-        print("Connected to Motor Controller Model {}. Firmware {} {} {}\n".format(
-            *resp.split(' ')
-        ))
+            resp = self.command(slave, 'VE?')
+            print("Connected to Motor Controller Model {}. Firmware {} {} {}\n".format(*resp.split(' ')))
             for m in range(1, 5):
                 resp = self.command(slave, "{}QM?".format(m))
                 print("Motor #{motor_number}: {status}".format(
@@ -201,7 +372,7 @@ class Controller(object):
             reply (str): Human readable reply from controller
         """
         usb_command = self.parse_command(slave, newfocus_command)
-
+        print(usb_command)
         # if there is a '?' in the command, the user expects a response from
         # the driver
         if '?' in newfocus_command:
@@ -217,15 +388,16 @@ class Controller(object):
 
     def setPos(self, slave, axis, position):
         '''axis of the slave should be in range(1, 5)'''
-        self.command(slave, str(axis)+' PA '+str(position))
+        print('Motor Move')
+        self.command(slave, str(axis)+'PA'+str(position))
         while True:
             time.sleep(0.1)
             if self.command(slave, str(axis)+'MD?'):
                 break
-        return float(self.command(slave, str(axis)+' PA?'))
+        return float(self.command(slave, str(axis)+'PA?'))
 
     def getPos(self, slave, axis):
-        return float(self.command(slave, str(axis)+' PA?'))
+        return float(self.command(slave, str(axis)+'PA?'))
 
     def abort(self, slave):
         self.command(slave, 'AB')
@@ -269,28 +441,23 @@ class Axis(QGroupBox):
         self.setTitle(name)
         self.axis = axis
         self.target = LVSpinBox()
-        self.target.setDecimals(5)
-        self.target.setRange(-13, 13)
+        self.target.setDecimals(0)
+        self.target.setRange(-50000, 50000)
         self.actual = LVSpinBox()
-        self.actual.setDecimals(5)
-        self.actual.setRange(-13, 13)
+        self.actual.setDecimals(0)
+        self.actual.setRange(-50000, 50000)
         self.target.setReadOnly(True)
         self.actual.setReadOnly(True)
-        position = self.device.getpos(slave, axis)
+        position = self.device.getPos(slave, axis)
         self.target.setValue(position)
         self.actual.setValue(position)
         self.stop = QPushButton("Stop")
         self.read = QPushButton("Read")
         self.motor = QPushButton("Motor Off")
         self.motor.setCheckable(True)
-        if self.device.status(axis):
-            self.motor.setChecked(True)
-            self.motor.setText("Motor On")
-            self.motor.setStyleSheet("background-color: green")
-        else:
-            self.motor.setChecked(False)
-            self.motor.setText("Motor Off")
-            self.motor.setStyleSheet("background-color: red")
+        self.motor.setChecked(False)
+        self.motor.setText("Motor Off")
+        self.motor.setStyleSheet("background-color: red")
         layout = QGridLayout()
         layout.setContentsMargins(1, 1, 1, 1)
         layout.setSpacing(0)
@@ -304,15 +471,16 @@ class Axis(QGroupBox):
         self.setLayout(layout)
         self.setConnect()
 
-    def setPos(self):
-        position = self.device.setpos(self.slave, self.axis, self.target.value())
+    def setPos(self, value):
+        print(value)
+        position = self.device.setPos(self.slave, self.axis, int(value))
         self.actual.setValue(position)
 
     def stopMotion(self):
         self.device.stop(self.slave, self.axis)
 
     def readPos(self):
-        position = self.device.getpos(self.slave, self.axis)
+        position = self.device.getPos(self.slave, self.axis)
         self.target.setValue(position)
         self.actual.setValue(position)
 
@@ -338,29 +506,30 @@ class PicomotorCtrl(QGroupBox):
         super().__init__()
         self.dev = Controller(idProduct, idVendor, slaves)
         self.setTitle('Picomotor')
-        self.axis = [None]*12
+        self.axis = [None]*4*slaves
         layout = QGridLayout()
         layout.setSpacing(0)
         layout.setContentsMargins(0, 0, 0, 0)
         for i in range(len(self.axis)):
             self.axis[i] = Axis(i//4+1, i%4+1, names[i], self.dev)
-            layout.addWidget(self.axis[i], i//6, i%6, 1, 1)
+            layout.addWidget(self.axis[i], i//3, i%3, 1, 1)
         self.setLayout(layout)
 
 
 class Window(QWidget):
-    def __init__(self):
+    def __init__(self, idProduct, idVendor):
         super().__init__()
         self.setWindowIcon(QIcon("esp.jpg"))
         names = ('Raman 170X', 'Raman 170Y', 'Raman 230X', 'Raman 230Y', 'EIT X', 'EIT Y', 'EIT Z','Protection X', 'Protection Y', 'Cooling X','935 X','935 Y')
         self.stage = PicomotorCtrl(idProduct, idVendor, names, 3)
-        layout = QVBoxLayout()
+        layout = QVBoxLayout(self)
         layout.setContentsMargins(1, 1, 1, 1)
         layout.setSpacing(0)
         layout.addWidget(self.stage)
-        layout.addWidget(self.stage)
-        self.setLayout(layout)
+        # layout.addWidget(self.stage)
+        # self.setLayout(layout)
         self.setWindowTitle("Picomotor")
+        self.show()
 
     def center(self):
         frame_geometry = self.frameGeometry()
@@ -371,28 +540,32 @@ class Window(QWidget):
         self.move(frame_geometry.topLeft())
 
 if __name__ == '__main__':
-    print('\n\n')
-    print('#'*80)
-    print('#\tPython controller for NewFocus Picomotor Controller')
-    print('#'*80)
-    print('\n')
+    # print('\n\n')
+    # print('#'*80)
+    # print('#\tPython controller for NewFocus Picomotor Controller')
+    # print('#'*80)
+    # print('\n')
 
-    idProduct = None  # '0x4000'
-    idVendor = None  # '0x104d'
+    # idProduct = None  # '0x4000'
+    # idVendor = None  # '0x104d'
 
-    if not (idProduct or idVendor):
-        print('Run the following command in a new terminal window:')
-        print('\t$ system_profiler SPUSBDataType\n')
-        print('Enter Product ID:')
-        idProduct = input('> ')
-        print('Enter Vendor ID:')
-        idVendor = input('> ')
-        print('\n')
+    # if not (idProduct or idVendor):
+    #     print('Run the following command in a new terminal window:')
+    #     print('\t$ system_profiler SPUSBDataType\n')
+    #     print('Enter Product ID:')
+    #     idProduct = input('> ')
+    #     print('Enter Vendor ID:')
+    #     idVendor = input('> ')
+    #     print('\n')
 
-    # convert hex value in string to hex value
-    idProduct = int(idProduct, 16)
-    idVendor = int(idVendor, 16)
+    # # convert hex value in string to hex value
+    # idProduct = int(idProduct, 16)
+    # idVendor = int(idVendor, 16)
 
-    # Initialize controller and start console
-    controller = Controller(idProduct=idProduct, idVendor=idVendor, 3)
-    controller.start_console()
+    # # Initialize controller and start console
+    # controller = Controller(idProduct=idProduct, idVendor=idVendor, slaves=2)
+    # controller.start_console()
+    app = QApplication(sys.argv)
+    app.setStyle('Fusion')
+    window = Window(0x4000, 0x104D)
+    sys.exit(app.exec_())
