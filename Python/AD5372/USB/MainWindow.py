@@ -388,7 +388,7 @@ class AD5372Ctrl(GroupCtrl):
     def __init__(self, title='', parent=None):
         super().__init__(title, parent)
         self.lock = RLock()
-        self.dataFile = 'data/ad5731.dat'
+        self.dataFile = 'data/ad5732.dat'
         self.channelOrder = [1, 0, 3, 2, 5, 4, 7, 6, 9, 8, 11, 10, 13, 12, 15,
                              14, 17, 16, 19, 18, 21, 20, 23, 22, 25, 24, 27, 26, 29, 28, 31, 30]
         self.dll = cdll.LoadLibrary('AD5372.dll')
@@ -527,7 +527,7 @@ class AD5372Ctrl(GroupCtrl):
     def set_shutter(self, num, state):
         '''API for shutter'''
         if num < len(self.shutters):
-            self.shutters[num].setChecked(state)
+            self.shutters[num-1].setChecked(state)
         else:
             print('Shutter index over range!')
             exit()
@@ -945,6 +945,7 @@ class VVA(GroupCtrl):
             self.value = LVNumCtrl('Value', func)
         else:
             self.value = LVNumCtrl('Value')
+        self.value.setRange(0, 10)
         row = QHBoxLayout(self)
         row.addWidget(self.value)
             

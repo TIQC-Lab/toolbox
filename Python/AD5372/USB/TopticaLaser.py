@@ -6,12 +6,16 @@ class TopticaLaser(object):
 
     def __init__(self, ip):
         self.ip = ip
-        self.dlc = DLCpro(NetworkConnection(self.ip))
-        self.dlc.__exit__()
+        try:
+            self.dlc = DLCpro(NetworkConnection(self.ip))
+        except DeviceNotFoundError:
+            print('Device not found!')
+        self.dlc.__enter__()
+        # print(ip)
 
     def get_voltage_set(self):
         return(self.dlc.laser1.dl.pc.voltage_set.get())
-
+        
     def get_current_set(self):
         return(self.dlc.laser1.dl.cc.current_set.get())
 
@@ -37,10 +41,13 @@ class TopticaLaser(object):
         return(self.dlc.ul.get())
 
     def enable_emission(self, status):
-        if status:
-            self.dlc.laser1.dl.cc.enabled.set(True)
-        else:
-            self.dlc.laser1.dl.cc.enabled.set(False)
+        try:
+            if status:
+                self.dlc.laser1.dl.cc.enabled.set(True)
+            else:
+                self.dlc.laser1.dl.cc.enabled.set(False)
+        except DecopError as error:
+            print(error)
             
     def close(self):
         self.dlc.__exit__()
@@ -52,6 +59,7 @@ class TopticaLaser(object):
 
 if __name__ == '__main__':
     laser = TopticaLaser("192.168.32.7")
+    laser.enable_emission(True)
     print(laser.userLevel())
     print(laser.get_voltage_act())
     print(laser.get_max_current())
